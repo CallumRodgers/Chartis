@@ -1,20 +1,23 @@
-#ifndef OPENGRAPHER_OPENGRAPHERAPPLICATION_H
-#define OPENGRAPHER_OPENGRAPHERAPPLICATION_H
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+// Full license text available in the LICENSE file at the root of this repository.
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef OPENMAVIS_OPENMAVISAPPLICATION_H
+#define OPENMAVIS_OPENMAVISAPPLICATION_H
 
 #include "GLFW/glfw3.h"
-#include "vulkan/vulkan.h"
 
-class OpenMaVisApplication {
+import amora;
+
+namespace MaVis {
+    class OpenMaVisApplication {
     public:
         OpenMaVisApplication(int argc, char** argv);
         void run();
 
     private:
-        /**
-         * Start GLFW and Vulkan. Prepare drawing environment.
-         */
-        void initialise();
-
         /**
          * Main render loop.
          */
@@ -23,12 +26,18 @@ class OpenMaVisApplication {
         /**
          * Cleaning up resources before exit.
          */
-        void cleanup();
+        void cleanUpResources();
 
-        void initWindow();
-        void initVulkan();
+        AMORA::Engine engine;
+
+        // ##########################################################
+        // GLFW Functions and objects
+        // ##########################################################
+
+        void createWindow();
 
         GLFWwindow* window;
-};
+    };
+}
 
-#endif //OPENGRAPHER_OPENGRAPHERAPPLICATION_H
+#endif //OPENMAVIS_OPENMAVISAPPLICATION_H

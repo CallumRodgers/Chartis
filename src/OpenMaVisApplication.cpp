@@ -1,41 +1,50 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+// Full license text available in the LICENSE file at the root of this repository.
+////////////////////////////////////////////////////////////////////////////////
+
+#include <iostream>
+
 #include "OpenMaVisApplication.h"
 
-#include <stdexcept>
+using namespace MaVis;
 
-OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv) {}
-
-void OpenMaVisApplication::run() {
-    initialise();
-    mainLoop();
-    cleanup();
+OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv) {
+    engine = AMORA::Engine();
 }
 
-void OpenMaVisApplication::initialise() {
-    initWindow();
-    initVulkan();
+void OpenMaVisApplication::run() {
+    if (!glfwInit()) {
+        throw std::runtime_error("GLFW: Failed to initialize GLFW.");
+    }
+    if (!glfwVulkanSupported()) {
+        throw std::runtime_error("GLFW: Vulkan support not available.");
+    }
+    createWindow();
+
+    engine.initialise(window);
+
+    mainLoop();
+
+    cleanUpResources();
+    glfwTerminate();
 }
 
 void OpenMaVisApplication::mainLoop() {
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+        engine.drawFrame();
     }
+
+    engine.terminate();
 }
 
-void OpenMaVisApplication::cleanup() {
+void OpenMaVisApplication::cleanUpResources() {
     glfwDestroyWindow(window);
-
-    glfwTerminate();
 }
 
-void OpenMaVisApplication::initWindow() {
-    if (!glfwInit()) {
-        throw std::runtime_error("Failed to initialize GLFW.");
-    }
-
-    if (!glfwVulkanSupported()) {
-        throw std::runtime_error("Vulkan support not available.");
-    }
-
+void OpenMaVisApplication::createWindow() {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
@@ -45,8 +54,4 @@ void OpenMaVisApplication::initWindow() {
     const int windowHeight = static_cast<int>(videoMode->height * proportion);
 
     window = glfwCreateWindow(windowWidth, windowHeight, "OpenMaVis", NULL, NULL);
-}
-
-void OpenMaVisApplication::initVulkan() {
-
 }
