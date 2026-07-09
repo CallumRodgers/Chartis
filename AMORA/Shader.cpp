@@ -1,12 +1,13 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers
-// SPDX-License-Identifier: MIT
-// Full license text available in the LICENSE file at the root of this repository.
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 Callum L. Rodgers                                            /
+// SPDX-License-Identifier: MIT                                                    /
+// Full license text available in the LICENSE file at the root of this repository. /
+////////////////////////////////////////////////////////////////////////////////////
 
 module;
 
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+#define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #include <vulkan/vulkan_raii.hpp>
 
 #include <fstream>

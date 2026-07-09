@@ -1,13 +1,15 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers
-// SPDX-License-Identifier: MIT
-// Full license text available in the LICENSE file at the root of this repository.
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 Callum L. Rodgers                                            /
+// SPDX-License-Identifier: MIT                                                    /
+// Full license text available in the LICENSE file at the root of this repository. /
+////////////////////////////////////////////////////////////////////////////////////
 
 module;
 
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+#define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #include <vulkan/vulkan_raii.hpp>
+
 #include <GLFW/glfw3.h>
 
 export module amora;
@@ -34,6 +36,8 @@ constexpr auto SHADER_ENTRY_TESSELATION = "tessMain";
 constexpr auto SHADER_ENTRY_FRAGMENT = "fragMain";
 constexpr auto SHADER_ENTRY_COMPUTE = "compMain";
 
+constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+
 export namespace AMORA {
 
     class Engine {
@@ -44,9 +48,15 @@ export namespace AMORA {
 
         void drawFrame();
 
+        void invalidateSwapChain() {
+            mSwapChainInvalidated = true;
+        };
+
         void terminate();
 
     private:
+        GLFWwindow* mWindowHandle = nullptr;
+
         vk::raii::Context mContext;
         vk::raii::Instance mInstance = nullptr;
         vk::raii::SurfaceKHR mSurface = nullptr;
@@ -68,21 +78,25 @@ export namespace AMORA {
         vk::raii::Pipeline mPipeline = nullptr;
 
         vk::raii::CommandPool mCommandPool = nullptr;
-        vk::raii::CommandBuffer mCommandBuffer = nullptr;
+        std::vector<vk::raii::CommandBuffer> mCommandBuffers;
 
-        vk::raii::Semaphore mPresentCompleteSemaphore = nullptr;
-        vk::raii::Semaphore mRenderCompleteSemaphore = nullptr;
-        vk::raii::Fence mDrawFence = nullptr;
+        std::vector<vk::raii::Semaphore> mPresentCompleteSemaphores;
+        std::vector<vk::raii::Semaphore> mRenderCompleteSemaphores;
+        std::vector<vk::raii::Fence> mDrawFences;
+
+        uint32_t mFrameIndex = 0;
+
+        bool mSwapChainInvalidated = false;
 
         void createInstance();
-        void createSurface(GLFWwindow* window);
+        void createSurface();
         void pickPhysicalDevice();
         void createLogicalDevice();
-        void createSwapChain(GLFWwindow* window);
+        void createSwapChain();
         void createImageViews();
         void createGraphicsPipeline();
         void createCommandPool();
-        void createCommandBuffer();
+        void createCommandBuffers();
         void createSyncObjects();
 
         void transitionImageLayout(
@@ -94,7 +108,10 @@ export namespace AMORA {
                 vk::PipelineStageFlags2 src_stage_mask,
                 vk::PipelineStageFlags2 dst_stage_mask
                 );
-        void recordCommandBuffer(uint32_t imageIndex);
+        void recordCommandBuffer(const vk::raii::CommandBuffer &commandBuffer, uint32_t imageIndex);
+
+        void cleanUpSwapChain();
+        void recreateSwapChain();
     };
 
     class Pipeline {

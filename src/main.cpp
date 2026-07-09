@@ -1,21 +1,25 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers
-// SPDX-License-Identifier: MIT
-// Full license text available in the LICENSE file at the root of this repository.
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 Callum L. Rodgers                                            /
+// SPDX-License-Identifier: MIT                                                    /
+// Full license text available in the LICENSE file at the root of this repository. /
+////////////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
+#include <quill/LogMacros.h>
+#include <quill/SimpleSetup.h>
 
-#include "OpenMaVisApplication.h"
+#include "OpenMaVisApplication.hpp"
+
+constexpr auto VERSION = "0.1";
 
 int main(const int argc, char *argv[]) {
-    std::cout << "Running OpenMaVis v0.1" << std::endl;
+    const auto logger = quill::simple_logger();
+    LOG_INFO(logger, "Running OpenMaVis v{}", VERSION);
 
     try {
         MaVis::OpenMaVisApplication app(argc, argv);
         app.run();
     } catch (std::exception& e) {
-        std::cerr << "Exception occurred during runtime: " << e.what() << std::endl;
+        LOG_ERROR(logger, "Exception occurred during runtime: {}", e.what());
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

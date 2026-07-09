@@ -1,20 +1,26 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers
-// SPDX-License-Identifier: MIT
-// Full license text available in the LICENSE file at the root of this repository.
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 Callum L. Rodgers                                            /
+// SPDX-License-Identifier: MIT                                                    /
+// Full license text available in the LICENSE file at the root of this repository. /
+////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 
-#include "OpenMaVisApplication.h"
+#include "OpenMaVisApplication.hpp"
 
 using namespace MaVis;
 
 OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv) {
-    engine = AMORA::Engine();
+    mEngine = AMORA::Engine();
 }
 
 void OpenMaVisApplication::run() {
+    init();
+    mainLoop();
+    cleanUpAndTerminate();
+}
+
+void OpenMaVisApplication::init() {
     if (!glfwInit()) {
         throw std::runtime_error("GLFW: Failed to initialize GLFW.");
     }
@@ -23,35 +29,63 @@ void OpenMaVisApplication::run() {
     }
     createWindow();
 
-    engine.initialise(window);
-
-    mainLoop();
-
-    cleanUpResources();
-    glfwTerminate();
+    mEngine.initialise(mWindow);
 }
 
 void OpenMaVisApplication::mainLoop() {
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-        engine.drawFrame();
-    }
+    bool firstLoop = true;
+    while (!glfwWindowShouldClose(mWindow)) {
 
-    engine.terminate();
+        if (firstLoop) {
+            mSurfaceInvalidated = true;
+        }
+
+        //////////////////////
+        // EVENT PROCESSING //
+        //////////////////////
+
+        if (firstLoop) {
+            glfwPollEvents();
+            firstLoop = false;
+        } else if (mRenderMode == RENDER_MODE_DIRTY) {
+            glfwWaitEvents();
+        } else { // RENDER_MODE_CONTINUOUS
+            glfwPollEvents();
+        }
+
+        ///////////////////////
+        // RENDERING SURFACE //
+        ///////////////////////
+
+        if (mSurfaceInvalidated || mRenderMode == RENDER_MODE_CONTINUOUS) {
+            mEngine.drawFrame();
+            mSurfaceInvalidated = false;
+        }
+    }
 }
 
-void OpenMaVisApplication::cleanUpResources() {
-    glfwDestroyWindow(window);
+void OpenMaVisApplication::cleanUpAndTerminate() {
+    mEngine.terminate();
+    glfwDestroyWindow(mWindow);
+    glfwTerminate();
+}
+
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
+    app->invalidateSurface();
+    app->mEngine.invalidateSwapChain();
 }
 
 void OpenMaVisApplication::createWindow() {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    const double proportion = 0.6;
-    const int windowWidth = static_cast<int>(videoMode->width * proportion);
-    const int windowHeight = static_cast<int>(videoMode->height * proportion);
+    const int windowWidth = static_cast<int>(videoMode->width * 0.5);
+    const int windowHeight = static_cast<int>(videoMode->height * 0.6);
 
-    window = glfwCreateWindow(windowWidth, windowHeight, "OpenMaVis", NULL, NULL);
+    mWindow = glfwCreateWindow(windowWidth, windowHeight, "OpenMaVis", NULL, NULL);
+    glfwSetWindowUserPointer(mWindow, this);
+    glfwSetFramebufferSizeCallback(mWindow, framebufferResizeCallback);
+    glfwSetCursor(mWindow, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
 }

@@ -16,6 +16,20 @@ find_package(slang REQUIRED)
 find_package(Vulkan REQUIRED)
 
 # =========================================
+# Compiling third party libraries.
+# =========================================
+
+include(FetchContent)
+
+# Quill
+FetchContent_Declare(
+        quill
+        GIT_REPOSITORY https://github.com/odygrd/quill.git
+        GIT_TAG        v12.0.0 # Use the specific version you want
+)
+FetchContent_MakeAvailable(quill)
+
+# =========================================
 # Creating function for shader compilation.
 # =========================================
 
@@ -101,10 +115,29 @@ target_sources(AMORA
 
         # Compute classes implementations
         AMORA/compute/ComputePipeline.cpp
+
+        # =========================================
+        # Dear ImGui Sources
+        # =========================================
+
+        libs/imgui/imgui.cpp
+        libs/imgui/imgui_widgets.cpp
+        libs/imgui/imgui_tables.cpp
+        libs/imgui/imgui_draw.cpp
+        libs/imgui/imgui_demo.cpp
+
+        libs/imgui/backends/imgui_impl_glfw.cpp
+        libs/imgui/backends/imgui_impl_vulkan.cpp
+)
+
+target_include_directories(AMORA
+    PRIVATE
+        libs/imgui
+        libs/imgui/backends
 )
 
 target_compile_features(AMORA PUBLIC cxx_std_20)
-target_link_libraries(AMORA PRIVATE glfw Vulkan::Vulkan glm)
+target_link_libraries(AMORA PRIVATE glfw Vulkan::Vulkan glm quill::quill)
 
 # =========================================
 # Listing source files.
@@ -115,7 +148,7 @@ set(SOURCES src/main.cpp
         src/OpenMaVisApplication.cpp
 
         # Headers
-        include/OpenMaVisApplication.h
+        include/OpenMaVisApplication.hpp
 )
 
 # =========================================
@@ -125,5 +158,5 @@ set(SOURCES src/main.cpp
 add_executable(OpenMaVis ${SOURCES})
 add_dependencies(OpenMaVis GraphicsShaders)
 
-target_link_libraries(OpenMaVis PRIVATE AMORA glfw)
-target_include_directories(OpenMaVis PRIVATE include)
+target_link_libraries(OpenMaVis PRIVATE AMORA glfw quill::quill)
+target_include_directories(OpenMaVis PRIVATE include libs/imgui)
