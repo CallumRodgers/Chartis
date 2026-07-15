@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 Callum L. Rodgers                                            /
+// SPDX-License-Identifier: MIT                                                    /
+// Full license text available in the LICENSE file at the root of this repository. /
+////////////////////////////////////////////////////////////////////////////////////
+
 // dear imgui: Renderer Backend for Vulkan
 // This needs to be used along with a Platform Backend (e.g. GLFW, SDL, Win32, custom..)
 

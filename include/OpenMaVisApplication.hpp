@@ -8,8 +8,7 @@
 #define OPENMAVIS_OPENMAVISAPPLICATION_HPP
 
 #include "GLFW/glfw3.h"
-
-import amora;
+#include <AMORA/Engine.hpp>
 
 namespace MaVis {
 
@@ -20,12 +19,16 @@ namespace MaVis {
     public:
         OpenMaVisApplication(int argc, char** argv);
 
-        AMORA::Engine mEngine;
+        GLFWwindow* mWindow;
 
         void run();
+
         void invalidateSurface() {
             mSurfaceInvalidated = true;
+            mRenderInvalidated = true;
         };
+
+        void invalidateRender() { mRenderInvalidated = true; }
 
         void setRenderMode(const int renderMode) {
             if (renderMode != RENDER_MODE_DIRTY && renderMode != RENDER_MODE_CONTINUOUS) {
@@ -35,33 +38,39 @@ namespace MaVis {
         };
 
     private:
-        /**
-         * Initializes GLFW, the window, the engine, and everything else.
-         */
-        void init();
-
-        /**
-         * Main render loop.
-         */
         void mainLoop();
 
-        /**
-         * Cleaning up resources before exit.
-         */
-        void cleanUpAndTerminate();
+        void cleanUpAndTerminate() const;
 
-        // ##########################################################
-        // GLFW Functions and objects
-        // ##########################################################
-
-        void createWindow();
-
-        GLFWwindow* mWindow = nullptr;
+        void setupResizeCallback();
 
         int mRenderMode = RENDER_MODE_DIRTY;
         bool mSurfaceInvalidated = false;
+        bool mRenderInvalidated = false;
 
     };
+
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+
+    static GLFWwindow* createWindow() {
+        if (!glfwInit()) {
+            throw std::runtime_error("GLFW: Failed to initialize GLFW.");
+        }
+        if (!glfwVulkanSupported()) {
+            throw std::runtime_error("GLFW: Vulkan support not available.");
+        }
+
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
+        const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        const int windowWidth = static_cast<int>(videoMode->width * 0.5);
+        const int windowHeight = static_cast<int>(videoMode->height * 0.6);
+
+        GLFWwindow* win = glfwCreateWindow(windowWidth, windowHeight, "OpenMaVis", NULL, NULL);
+        glfwSetCursor(win, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
+        return win;
+    }
 }
 
 #endif //OPENMAVIS_OPENMAVISAPPLICATION_HPP

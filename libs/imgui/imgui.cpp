@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 Callum L. Rodgers                                            /
+// SPDX-License-Identifier: MIT                                                    /
+// Full license text available in the LICENSE file at the root of this repository. /
+////////////////////////////////////////////////////////////////////////////////////
+
 // dear imgui, v1.92.8
 // (main code and documentation)
 
@@ -26,14 +32,6 @@
 // please post in https://github.com/ocornut/imgui/discussions if you cannot find a solution in resources above.
 // Everything else should be asked in 'Issues'! We are building a database of cross-linked knowledge there.
 // Since 1.92, we encourage font loading questions to also be posted in 'Issues'.
-
-// Copyright (c) 2014-2026 Omar Cornut
-// Developed by Omar Cornut and every direct or indirect contributors to the GitHub.
-// See LICENSE.txt for copyright and licensing details (standard MIT License).
-// This library is free but needs your support to sustain development and maintenance.
-// Businesses: you can support continued development via B2B invoiced technical support, maintenance and sponsoring contracts.
-// PLEASE reach out at omar AT dearimgui DOT com. See https://github.com/ocornut/imgui/wiki/Funding
-// Businesses: you can also purchase licenses for the Dear ImGui Automation/Test Engine.
 
 // It is recommended that you don't modify imgui.cpp! It will become difficult for you to update the library.
 // Note that 'ImGui::' being a namespace, you can add functions into the namespace from your own source files, without

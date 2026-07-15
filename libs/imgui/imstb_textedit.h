@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 Callum L. Rodgers                                            /
+// SPDX-License-Identifier: MIT                                                    /
+// Full license text available in the LICENSE file at the root of this repository. /
+////////////////////////////////////////////////////////////////////////////////////
+
 // [DEAR IMGUI]
 // This is a slightly modified version of stb_textedit.h 1.14.
 // Those changes would need to be pushed into nothings/stb:

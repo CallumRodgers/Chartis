@@ -85,7 +85,10 @@ endfunction()
 # Compiling shaders.
 # =========================================
 
-set(GRAPHICS_SHADERS_SOURCES AMORA/shaders/shader.slang)
+set(GRAPHICS_SHADERS_SOURCES
+        AMORA/shaders/shader_vert.slang
+        AMORA/shaders/shader_frag.slang
+)
 set(COMPUTE_SHADERS_SOURCES
 )
 
@@ -99,22 +102,39 @@ compile_shaders(GraphicsShaders ${CMAKE_BINARY_DIR} ${GRAPHICS_SHADERS_SOURCES})
 add_library(AMORA SHARED)
 target_sources(AMORA
     PUBLIC
-        FILE_SET CXX_MODULES
-        FILES
-            AMORA/AMORA.cppm
-            AMORA/graphics/graphics.cppm
-            AMORA/compute/compute.cppm
+        AMORA/include/AMORA/Engine.hpp
+        AMORA/include/AMORA/Config.hpp
+        AMORA/include/AMORA/AlgebraTypes.hpp
+        AMORA/include/AMORA/Logger.hpp
+        AMORA/include/AMORA/Scene.hpp
+        AMORA/include/AMORA/Scene2D.hpp
+        AMORA/include/AMORA/Scene3D.hpp
+
     PRIVATE
-        # AMORA classes implementations
-        AMORA/Engine.cpp
-        AMORA/Shader.cpp
-        AMORA/Pipeline.cpp
+        AMORA/src/Engine.cpp
+
+        AMORA/src/VulkanContext.hpp
+        AMORA/src/VulkanContext.cpp
+        AMORA/src/RenderSurface.hpp
+        AMORA/src/RenderSurface.cpp
+        AMORA/src/CommandDispatcher.hpp
+        AMORA/src/CommandDispatcher.cpp
+        AMORA/src/SwapChain.hpp
+        AMORA/src/SwapChain.cpp
+        AMORA/src/Shader.hpp
+        AMORA/src/Shader.cpp
+        AMORA/src/Pipeline.hpp
+        AMORA/src/Pipeline.cpp
+        AMORA/src/FenceGroup.hpp
+        AMORA/src/SemaphoreGroup.hpp
 
         # Graphics classes implementations
-        AMORA/graphics/GraphicsPipeline.cpp
+        AMORA/src/graphics/GraphicsPipeline.hpp
+        AMORA/src/graphics/GraphicsPipeline.cpp
 
         # Compute classes implementations
-        AMORA/compute/ComputePipeline.cpp
+        AMORA/src/compute/ComputePipeline.hpp
+        AMORA/src/compute/ComputePipeline.cpp
 
         # =========================================
         # Dear ImGui Sources
@@ -131,12 +151,21 @@ target_sources(AMORA
 )
 
 target_include_directories(AMORA
-    PRIVATE
-        libs/imgui
-        libs/imgui/backends
+        PUBLIC AMORA/include
+        PRIVATE AMORA/src libs/imgui libs/imgui/backends
 )
 
-target_compile_features(AMORA PUBLIC cxx_std_20)
+# This saves us from having to define these macros every time we include a GLFW/Vulkan header.
+target_compile_definitions(AMORA PRIVATE
+        GLFW_INCLUDE_NONE
+        GLFW_INCLUDE_VULKAN
+        VULKAN_HPP_NO_STRUCT_SETTERS
+        VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+        VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
+)
+# Precompilation speeds up the build process. It also takes it easier on the IDE parsing.
+target_precompile_headers(AMORA PRIVATE <GLFW/glfw3.h> <vulkan/vulkan_raii.hpp>)
+
 target_link_libraries(AMORA PRIVATE glfw Vulkan::Vulkan glm quill::quill)
 
 # =========================================
@@ -159,4 +188,4 @@ add_executable(OpenMaVis ${SOURCES})
 add_dependencies(OpenMaVis GraphicsShaders)
 
 target_link_libraries(OpenMaVis PRIVATE AMORA glfw quill::quill)
-target_include_directories(OpenMaVis PRIVATE include libs/imgui)
+target_include_directories(OpenMaVis PRIVATE include libs/imgui AMORA/include)
