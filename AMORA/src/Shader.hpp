@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan_raii.hpp>
 
-namespace AMORA {
+namespace amora {
     enum ShaderStage {
         VERTEX,
         TESSELATION,

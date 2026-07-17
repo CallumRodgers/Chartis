@@ -8,7 +8,7 @@
 
 #include <fstream>
 
-using namespace AMORA;
+using namespace amora;
 
 Shader::Shader(const vk::raii::Device& device, const std::string& shaderFileName)
     : mShaderFileName(shaderFileName.ends_with(".spv") ? shaderFileName : shaderFileName + ".spv")

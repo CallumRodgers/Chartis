@@ -4,4 +4,4 @@
 // Full license text available in the LICENSE file at the root of this repository. /
 ////////////////////////////////////////////////////////////////////////////////////
 
-#include "Scene2D.hpp"
+#include <AMORA/Scene2D.hpp>

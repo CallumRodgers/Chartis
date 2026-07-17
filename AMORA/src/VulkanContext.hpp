@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan_raii.hpp>
 
-namespace AMORA {
+namespace amora {
 
     /**
      * The VulkanContext class manages Vulkan instance creation, physical device selection,

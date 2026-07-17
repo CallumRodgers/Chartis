@@ -6,4 +6,4 @@
 
 #include "CommandDispatcher.hpp"
 
-using namespace AMORA;
+using namespace amora;

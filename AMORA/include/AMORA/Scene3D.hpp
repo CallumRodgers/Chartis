@@ -9,7 +9,7 @@
 
 #include <AMORA/Scene.hpp>
 
-namespace AMORA {
+namespace amora {
     class Scene3D final : public Scene {
 
     };

@@ -10,7 +10,7 @@
 #include "Shader.hpp"
 #include <map>
 
-namespace AMORA {
+namespace amora {
     /**
      *
      */

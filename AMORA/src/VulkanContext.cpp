@@ -10,11 +10,11 @@
 #include <algorithm>
 #include <cstring>
 
-#include <AMORA/Config.hpp>
-#include <AMORA/Logger.hpp>
+#include <AMORA/config.hpp>
+#include <AMORA/logger.hpp>
 #include "VulkanContext.hpp"
 
-using namespace AMORA;
+using namespace amora;
 
 /**
  * Retrieves all the required GLFW extensions plus any extra ones
@@ -31,8 +31,8 @@ std::vector<const char*> getRequiredInstanceExtensions() {
 std::vector<const char*> getRequiredInstanceLayers() {
     // Get the required layers
     std::vector<char const*> requiredLayers;
-    if (Config::Layers::ENABLE_VALIDATION_LAYERS) {
-        requiredLayers.assign(Config::Layers::VALIDATION_LAYERS.begin(), Config::Layers::VALIDATION_LAYERS.end());
+    if (config::layers::ENABLE_VALIDATION_LAYERS) {
+        requiredLayers.assign(config::layers::VALIDATION_LAYERS.begin(), config::layers::VALIDATION_LAYERS.end());
     }
     return requiredLayers;
 }
@@ -67,11 +67,11 @@ void checkRequiredLayersAvailability(const std::vector<const char*>& requiredLay
 
 VulkanContext::VulkanContext() {
     vk::ApplicationInfo appInfo = {
-        .pApplicationName   = Config::Info::APPLICATION_NAME,
-        .applicationVersion = Config::Info::APPLICATION_VERSION,
-        .pEngineName        = Config::Info::ENGINE_NAME,
-        .engineVersion      = Config::Info::ENGINE_VERSION,
-        .apiVersion         = vk::ApiVersion14
+        .pApplicationName   = config::info::APPLICATION_NAME,
+        .applicationVersion = config::info::APPLICATION_VERSION,
+        .pEngineName        = config::info::ENGINE_NAME,
+        .engineVersion      = config::info::ENGINE_VERSION,
+        .apiVersion         = config::info::API_VERSION
     };
 
     auto requiredExtensions = getRequiredInstanceExtensions();
@@ -199,12 +199,12 @@ void VulkanContext::createLogicalDevice(const vk::raii::SurfaceKHR& surface) {
     const vk::DeviceQueueCreateInfo graphicsQueueCreateInfo {
         .queueFamilyIndex = graphicsQueueIndex,
         .queueCount = 1,
-        .pQueuePriorities = &Config::Rendering::GRAPHICS_QUEUE_PRIORITY,
+        .pQueuePriorities = &config::rendering::GRAPHICS_QUEUE_PRIORITY,
     };
     const vk::DeviceQueueCreateInfo computeQueueCreateInfo {
         .queueFamilyIndex = computeQueueIndex,
         .queueCount = 1,
-        .pQueuePriorities = &Config::Rendering::COMPUTE_QUEUE_PRIORITY
+        .pQueuePriorities = &config::rendering::COMPUTE_QUEUE_PRIORITY
     };
 
     const vk::DeviceQueueCreateInfo queueCreateInfos[] = {graphicsQueueCreateInfo, computeQueueCreateInfo};
@@ -226,7 +226,7 @@ void VulkanContext::createLogicalDevice(const vk::raii::SurfaceKHR& surface) {
     auto& extendedStateEXT = featureChain.get<vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>();
     extendedStateEXT.extendedDynamicState = true;
 
-    auto extensions = Config::Extensions::REQUIRED_DEVICE_EXTENSIONS;
+    auto extensions = config::extensions::REQUIRED_DEVICE_EXTENSIONS;
 
     vk::DeviceCreateInfo deviceCreateInfo {
         .pNext                      = &featureChain.get<vk::PhysicalDeviceFeatures2>(),

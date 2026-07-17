@@ -8,7 +8,7 @@
 
 #include <GLFW/glfw3.h>
 
-using namespace AMORA;
+using namespace amora;
 
 RenderSurface::RenderSurface(const VulkanContext& context, GLFWwindow* window)
     : mContext(context), mWindowHandle(window)

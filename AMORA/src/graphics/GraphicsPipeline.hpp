@@ -11,7 +11,7 @@
 #include "Shader.hpp"
 #include "SwapChain.hpp"
 
-namespace AMORA::Graphics {
+namespace amora::graphics {
     /**
      *
      */
@@ -22,7 +22,13 @@ namespace AMORA::Graphics {
             const Pipeline* previousPipeline, const SwapChain& swapChain
             );
 
+        [[nodiscard]] const vk::PipelineRenderingCreateInfo& getRenderingCreateInfo() const {
+            return mRenderingCreateInfo;
+        }
+
     private:
+        vk::PipelineRenderingCreateInfo mRenderingCreateInfo;
+
         [[nodiscard]] std::vector<vk::PipelineShaderStageCreateInfo> createStages(const std::map<ShaderStage, std::shared_ptr<Shader> >& shaders);
     };
 }

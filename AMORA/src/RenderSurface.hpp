@@ -12,7 +12,7 @@
 // Forward declaring the window class to keep GLFW in the implementation file.
 struct GLFWwindow;
 
-namespace AMORA {
+namespace amora {
 
     /**
      * The RenderSurface class encapsulates the overall concept of a surface that may be drawn on.
@@ -42,6 +42,10 @@ namespace AMORA {
 
         [[nodiscard]] const vk::raii::SurfaceKHR& getSurface() const noexcept {
             return mSurface;
+        }
+
+        [[nodiscard]] GLFWwindow* getWindow() const noexcept {
+            return mWindowHandle;
         }
 
     private:

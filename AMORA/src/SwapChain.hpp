@@ -9,7 +9,7 @@
 
 #include "RenderSurface.hpp"
 
-namespace AMORA {
+namespace amora {
 
     /**
      *
@@ -26,6 +26,7 @@ namespace AMORA {
         [[nodiscard]] auto& getImages() const noexcept { return mSwapChainImages; }
         [[nodiscard]] auto& getImageViews() const noexcept { return mSwapChainImageViews; }
         [[nodiscard]] auto& getExtent() const noexcept { return mSwapChainExtent; }
+        [[nodiscard]] auto getMinImageCount() const noexcept { return mMinImageCount; }
 
         void recreate();
         void cleanUp();
@@ -39,6 +40,7 @@ namespace AMORA {
         std::vector<vk::raii::ImageView> mSwapChainImageViews;
         vk::SurfaceFormatKHR mSwapChainSurfaceFormat;
         vk::Extent2D mSwapChainExtent;
+        uint32_t mMinImageCount = 0;
 
         void create(int width, int height);
     };
