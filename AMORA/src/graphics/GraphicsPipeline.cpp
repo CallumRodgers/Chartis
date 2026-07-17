@@ -6,7 +6,7 @@
 
 #include "GraphicsPipeline.hpp"
 
-using namespace AMORA::Graphics;
+using namespace amora::graphics;
 
 GraphicsPipeline::GraphicsPipeline(
     const vk::raii::Device& device, const std::map<ShaderStage, std::shared_ptr<Shader> >& shaders,
@@ -82,6 +82,11 @@ GraphicsPipeline::GraphicsPipeline(
         .sampleShadingEnable = vk::False
     };
 
+    mRenderingCreateInfo = {
+        .colorAttachmentCount = 1,
+        .pColorAttachmentFormats = &swapChain.getSurfaceFormat().format
+    };
+
     vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateInfoChain = {
         {
             .stageCount          = static_cast<uint32_t>(shaderStages.size()),
@@ -96,10 +101,7 @@ GraphicsPipeline::GraphicsPipeline(
             .layout              = mPipelineLayout,
             .renderPass          = nullptr // Using dynamic rendering.
         },
-        {
-            .colorAttachmentCount = 1,
-            .pColorAttachmentFormats = &swapChain.getSurfaceFormat().format
-        }
+        mRenderingCreateInfo
     };
 
     if (previousPipeline != nullptr) {

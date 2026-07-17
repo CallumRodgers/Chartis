@@ -7,26 +7,39 @@
 #ifndef OPENMAVIS_OPENMAVISAPPLICATION_HPP
 #define OPENMAVIS_OPENMAVISAPPLICATION_HPP
 
-#include "GLFW/glfw3.h"
-#include <AMORA/Engine.hpp>
+#include <GLFW/glfw3.h>
+#include <quill/LogMacros.h>
+#include <quill/Logger.h>
 
-namespace MaVis {
+#ifdef NDEBUG
+#define MAVIS_DEBUG(...)
+#else
+#define MAVIS_DEBUG(...) LOG_DEBUG(mavis::logger, __VA_ARGS__)
+#endif
+
+#define MAVIS_INFO(...) LOG_INFO(mavis::logger, __VA_ARGS__)
+#define MAVIS_WARN(...) LOG_WARNING(mavis::logger, __VA_ARGS__)
+#define MAVIS_ERROR(...) LOG_ERROR(mavis::logger, __VA_ARGS__)
+
+namespace mavis {
+    /// Global logger for the engine.
+    inline quill::Logger* logger = nullptr;
 
     constexpr int RENDER_MODE_DIRTY = 0;
     constexpr int RENDER_MODE_CONTINUOUS = 1;
 
     class OpenMaVisApplication {
     public:
+        static void beginLogging();
+        static void endLogging();
+
         OpenMaVisApplication(int argc, char** argv);
 
         GLFWwindow* mWindow;
 
         void run();
 
-        void invalidateSurface() {
-            mSurfaceInvalidated = true;
-            mRenderInvalidated = true;
-        };
+        void invalidateSurface() { mSurfaceInvalidated = true; };
 
         void invalidateRender() { mRenderInvalidated = true; }
 
@@ -47,6 +60,9 @@ namespace MaVis {
         int mRenderMode = RENDER_MODE_DIRTY;
         bool mSurfaceInvalidated = false;
         bool mRenderInvalidated = false;
+
+        /// Resizing operation doesn't need more than 30 FPS.
+        int mMinResizeDelay = static_cast<int>(1.0f / 30.0f);
 
     };
 

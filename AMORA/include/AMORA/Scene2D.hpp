@@ -8,10 +8,13 @@
 #define OPENMAVIS_SCENE2D_HPP
 
 #include <AMORA/Scene.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
-namespace AMORA {
+namespace amora {
     class Scene2D final : public Scene {
-
+        Scene2D(const std::string& name) : Scene(name) {
+            mProjectionMatrix = glm::ortho();
+        }
     };
 }
 

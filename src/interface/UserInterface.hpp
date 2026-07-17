@@ -4,19 +4,21 @@
 // Full license text available in the LICENSE file at the root of this repository. /
 ////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef OPENMAVIS_LOGGER_HPP
-#define OPENMAVIS_LOGGER_HPP
+#ifndef OPENMAVIS_USERINTERFACE_HPP
+#define OPENMAVIS_USERINTERFACE_HPP
 
-#include <quill/LogMacros.h>
-#include <quill/Logger.h>
+#include <GLFW/glfw3.h>
 
-namespace AMORA {
-    /// Global logger for the engine.
-    inline quill::Logger* logger = nullptr;
+namespace amora {
+    class Engine;
 }
 
-#define ENGINE_INFO(...) LOG_INFO(logger, __VA_ARGS__)
-#define ENGINE_WARN(...) LOG_WARNING(logger, __VA_ARGS__)
-#define ENGINE_ERROR(...) LOG_ERROR(logger, __VA_ARGS__)
+namespace mavis {
+    class UserInterface {
+    public:
+        static void begin(GLFWwindow* window, const amora::Engine& engine);
+        static void end(const amora::Engine& engine);
+    };
+}
 
-#endif //OPENMAVIS_LOGGER_HPP
+#endif //OPENMAVIS_USERINTERFACE_HPP

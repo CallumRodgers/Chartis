@@ -7,10 +7,10 @@
 #ifndef OPENMAVIS_SCENE_HPP
 #define OPENMAVIS_SCENE_HPP
 
-#include <AMORA/AlgebraTypes.hpp>
+#include <AMORA/algebra_types.hpp>
 #include <string>
 
-namespace AMORA {
+namespace amora {
     class Scene {
     public:
         Scene(const std::string& name) : mSceneName(name) {}

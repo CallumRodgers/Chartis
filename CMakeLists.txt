@@ -103,9 +103,9 @@ add_library(AMORA SHARED)
 target_sources(AMORA
     PUBLIC
         AMORA/include/AMORA/Engine.hpp
-        AMORA/include/AMORA/Config.hpp
-        AMORA/include/AMORA/AlgebraTypes.hpp
-        AMORA/include/AMORA/Logger.hpp
+        AMORA/include/AMORA/config.hpp
+        AMORA/include/AMORA/algebra_types.hpp
+        AMORA/include/AMORA/logger.hpp
         AMORA/include/AMORA/Scene.hpp
         AMORA/include/AMORA/Scene2D.hpp
         AMORA/include/AMORA/Scene3D.hpp
@@ -152,7 +152,7 @@ target_sources(AMORA
 
 target_include_directories(AMORA
         PUBLIC AMORA/include
-        PRIVATE AMORA/src libs/imgui libs/imgui/backends
+        PRIVATE AMORA/src libs/imgui
 )
 
 # This saves us from having to define these macros every time we include a GLFW/Vulkan header.
@@ -176,6 +176,9 @@ set(SOURCES src/main.cpp
         # Sources
         src/OpenMaVisApplication.cpp
 
+        src/interface/UserInterface.hpp
+        src/interface/UserInterface.cpp
+
         # Headers
         include/OpenMaVisApplication.hpp
 )
@@ -189,3 +192,9 @@ add_dependencies(OpenMaVis GraphicsShaders)
 
 target_link_libraries(OpenMaVis PRIVATE AMORA glfw quill::quill)
 target_include_directories(OpenMaVis PRIVATE include libs/imgui AMORA/include)
+
+add_custom_command(TARGET OpenMaVis POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/res"
+        "${CMAKE_BINARY_DIR}/res"
+)

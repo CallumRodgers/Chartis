@@ -9,11 +9,11 @@
 
 #include <vulkan/vulkan_raii.hpp>
 
-#include <AMORA/Config.hpp>
+#include <AMORA/config.hpp>
 
 #include <vector>
 
-namespace AMORA {
+namespace amora {
 
     /**
      * The <code>CommandDispatcher</code> class encapsulates the managing of a queue, its respective command pool,
@@ -32,7 +32,7 @@ namespace AMORA {
                 mCommandBuffers(vk::raii::CommandBuffers(device, {
                     .commandPool = mCommandPool,
                     .level = vk::CommandBufferLevel::ePrimary,
-                    .commandBufferCount = Config::Rendering::MAX_FRAMES_IN_FLIGHT
+                    .commandBufferCount = config::rendering::MAX_FRAMES_IN_FLIGHT
                 }))
         {}
 

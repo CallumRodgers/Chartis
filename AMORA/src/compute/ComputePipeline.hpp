@@ -9,7 +9,7 @@
 
 #include "Pipeline.hpp"
 
-namespace AMORA::Compute {
+namespace amora::Compute {
     class ComputePipeline final : public Pipeline {
 
     };

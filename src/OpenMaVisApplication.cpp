@@ -4,11 +4,30 @@
 // Full license text available in the LICENSE file at the root of this repository. /
 ////////////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-
 #include "OpenMaVisApplication.hpp"
 
-using namespace MaVis;
+#include "interface/UserInterface.hpp"
+
+#include <AMORA/Engine.hpp>
+
+#include <quill/Backend.h>
+#include <quill/Frontend.h>
+#include <quill/sinks/ConsoleSink.h>
+
+using namespace mavis;
+
+void OpenMaVisApplication::beginLogging() {
+    quill::Backend::start();
+    const auto sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("OpenMaVis_console_sink");
+    logger = quill::Frontend::create_or_get_logger("OpenMaVis", sink);
+    MAVIS_INFO("Successfully initialized OpenMaVis logger.");
+}
+
+void OpenMaVisApplication::endLogging() {
+    MAVIS_INFO("Ending OpenMaVis logging.");
+    logger->flush_log();
+    quill::Backend::stop();
+}
 
 OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv)
     : mWindow(createWindow())
@@ -28,10 +47,16 @@ void OpenMaVisApplication::run() {
 }
 
 void OpenMaVisApplication::mainLoop() {
-    AMORA::Engine::startLogging();
+    amora::Engine::startLogging();
     // By creating the Engine object here, it'll be automatically cleaned up
     // once it goes out of scope (i.e., the main loop exits).
-    AMORA::Engine engine(mWindow);
+    amora::Engine engine(mWindow);
+    amora::ImGuiEngineData data = engine.beginUserInterface(mWindow);
+
+    setRenderMode(RENDER_MODE_CONTINUOUS);
+
+    //ImGui::SetAllocatorFunctions(data.AllocFunc, data.FreeFunc, data.AllocUserData);
+    //ImGui::SetCurrentContext(data.Context);
 
     bool firstLoop = true;
     while (!glfwWindowShouldClose(mWindow)) {
@@ -44,11 +69,6 @@ void OpenMaVisApplication::mainLoop() {
         // EVENT PROCESSING //
         //////////////////////
 
-        if (mSurfaceInvalidated) {
-            engine.invalidateSwapChain();
-            mSurfaceInvalidated = false;
-        }
-
         if (firstLoop) {
             glfwPollEvents();
             firstLoop = false;
@@ -56,6 +76,12 @@ void OpenMaVisApplication::mainLoop() {
             glfwWaitEvents();
         } else { // RENDER_MODE_CONTINUOUS
             glfwPollEvents();
+        }
+
+        if (mSurfaceInvalidated) {
+            engine.invalidateSwapChain();
+            mSurfaceInvalidated = false;
+            mRenderInvalidated = true;
         }
 
         ///////////////////////
@@ -67,6 +93,8 @@ void OpenMaVisApplication::mainLoop() {
             mRenderInvalidated = false;
         }
     }
+
+    engine.endUserInterface();
 }
 
 void OpenMaVisApplication::cleanUpAndTerminate() const {
@@ -74,7 +102,7 @@ void OpenMaVisApplication::cleanUpAndTerminate() const {
     glfwTerminate();
 }
 
-void MaVis::framebufferResizeCallback(GLFWwindow *window, int width, int height) {
+void mavis::framebufferResizeCallback(GLFWwindow *window, int width, int height) {
     const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
     app->invalidateSurface();
 }

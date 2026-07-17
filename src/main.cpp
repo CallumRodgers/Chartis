@@ -6,21 +6,23 @@
 
 #include <quill/LogMacros.h>
 #include <quill/SimpleSetup.h>
+#include <AMORA/config.hpp>
 
 #include "OpenMaVisApplication.hpp"
 
-constexpr auto VERSION = "0.1";
-
 int main(const int argc, char *argv[]) {
-    const auto logger = quill::simple_logger();
-    LOG_INFO(logger, "Running OpenMaVis v{}", VERSION);
+    mavis::OpenMaVisApplication::beginLogging();
+
+    MAVIS_INFO("Running OpenMaVis v{}", amora::config::info::APPLICATION_VERSION);
 
     try {
-        MaVis::OpenMaVisApplication app(argc, argv);
+        mavis::OpenMaVisApplication app(argc, argv);
         app.run();
     } catch (std::exception& e) {
-        LOG_ERROR(logger, "Exception occurred during runtime: {}", e.what());
+        MAVIS_ERROR("Exception occurred during runtime: {}", e.what());
+        mavis::OpenMaVisApplication::endLogging();
         return EXIT_FAILURE;
     }
+    mavis::OpenMaVisApplication::endLogging();
     return EXIT_SUCCESS;
 }

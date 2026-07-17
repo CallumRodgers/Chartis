@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan_raii.hpp>
 
-namespace AMORA {
+namespace amora {
     class FenceGroup {
     public:
         FenceGroup(const vk::raii::Device& device, const uint32_t amount) {

@@ -6,7 +6,7 @@
 
 #include "SwapChain.hpp"
 
-using namespace AMORA;
+using namespace amora;
 
 SwapChain::SwapChain(const VulkanContext& context, const RenderSurface& renderSurface)
     : mContext(context), mRenderSurface(renderSurface)
@@ -61,7 +61,7 @@ uint32_t chooseSwapMinImageCount(vk::SurfaceCapabilitiesKHR const &surfaceCapabi
 void SwapChain::create(const int width, const int height) {
     const auto surfaceCapabilities = mRenderSurface.getCurrentCapabilities();
     mSwapChainExtent = chooseSwapExtent(width, height, surfaceCapabilities);
-    const uint32_t minImageCount = chooseSwapMinImageCount(surfaceCapabilities);
+    mMinImageCount = chooseSwapMinImageCount(surfaceCapabilities);
 
     const auto availableFormats = mRenderSurface.getCurrentFormats();
     mSwapChainSurfaceFormat = chooseSwapSurfaceFormat(availableFormats);
@@ -70,7 +70,7 @@ void SwapChain::create(const int width, const int height) {
 
     const vk::SwapchainCreateInfoKHR swapChainCreateInfo = {
                     .surface          = *mRenderSurface.getSurface(),
-                    .minImageCount    = minImageCount,
+                    .minImageCount    = mMinImageCount,
                     .imageFormat      = mSwapChainSurfaceFormat.format,
                     .imageColorSpace  = mSwapChainSurfaceFormat.colorSpace,
                     .imageExtent      = mSwapChainExtent,
@@ -108,7 +108,6 @@ void SwapChain::create(const int width, const int height) {
 std::pair<bool, uint32_t> SwapChain::acquireNextImage(const vk::raii::Semaphore& renderCompleteSemaphore) {
     auto [result, imageIndex] = mSwapChain.acquireNextImage(UINT64_MAX, renderCompleteSemaphore, nullptr);
     if (result == vk::Result::eErrorOutOfDateKHR) {
-        recreate();
         return {false, imageIndex};
     }
     if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR) {

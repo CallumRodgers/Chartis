@@ -11,12 +11,15 @@
 #include <AMORA/Scene.hpp>
 #include <memory>
 
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_vulkan.h>
+
 /**
  * Namespace of the Animated Mathematical Object Rendering Architecture (AMORA). The Vulkan code is entirely
  * isolated within the AMORA library, serving also as a backend for the Dear ImGui interface declared in
  * the main application code.
  */
-namespace AMORA {
+namespace amora {
     // =====================
     // Forward declarations.
     // =====================
@@ -28,9 +31,16 @@ namespace AMORA {
     class SemaphoreGroup;
     class FenceGroup;
 
-    namespace Graphics {
+    namespace graphics {
         class GraphicsPipeline;
     }
+
+    struct ImGuiEngineData {
+        ImGuiContext* Context = nullptr;
+        ImGuiMemAllocFunc AllocFunc = nullptr;
+        ImGuiMemFreeFunc FreeFunc = nullptr;
+        void* AllocUserData = nullptr;
+    };
 
     /**
      * The <code>Engine</code> class is the basis of the public AMORA API. Besides the explicit
@@ -75,6 +85,9 @@ namespace AMORA {
          * and must be recreated. */
         void invalidateSwapChain() { mSwapChainInvalidated = true; };
 
+        ImGuiEngineData beginUserInterface(GLFWwindow* window) const;
+        void endUserInterface() const;
+
     private:
         /// Holds the Vulkan instance and devices. Automatically initialised through
         /// its trivial constructor.
@@ -93,7 +106,7 @@ namespace AMORA {
         std::unique_ptr<FenceGroup> mDrawFences;
 
         /// Temporary pipeline.
-        std::unique_ptr<Graphics::GraphicsPipeline> mPipeline;
+        std::unique_ptr<graphics::GraphicsPipeline> mPipeline;
 
         uint32_t mFrameIndex = 0;
 
