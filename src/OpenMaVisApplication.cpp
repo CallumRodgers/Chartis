@@ -17,7 +17,10 @@
 using namespace mavis;
 
 void OpenMaVisApplication::beginLogging() {
-    quill::Backend::start();
+    quill::BackendOptions options;
+    options.sleep_duration = std::chrono::milliseconds{50};
+    quill::Backend::start(options);
+
     const auto sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("OpenMaVis_console_sink");
     logger = quill::Frontend::create_or_get_logger("OpenMaVis", sink);
     MAVIS_INFO("Started OpenMaVis logging");
