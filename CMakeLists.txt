@@ -103,6 +103,7 @@ add_library(AMORA SHARED)
 target_sources(AMORA
     PUBLIC
         AMORA/include/AMORA/Engine.hpp
+        AMORA/include/AMORA/ImGuiEngineData.hpp
         AMORA/include/AMORA/config.hpp
         AMORA/include/AMORA/algebra_types.hpp
         AMORA/include/AMORA/logger.hpp

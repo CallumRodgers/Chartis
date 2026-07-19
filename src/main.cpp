@@ -6,14 +6,13 @@
 
 #include <quill/LogMacros.h>
 #include <quill/SimpleSetup.h>
-#include <AMORA/config.hpp>
 
 #include "OpenMaVisApplication.hpp"
 
 int main(const int argc, char *argv[]) {
     mavis::OpenMaVisApplication::beginLogging();
 
-    MAVIS_INFO("Running OpenMaVis v{}", amora::config::info::APPLICATION_VERSION);
+    MAVIS_INFO("Running OpenMaVis v{}", mavis::APPLICATION_VERSION);
 
     try {
         mavis::OpenMaVisApplication app(argc, argv);

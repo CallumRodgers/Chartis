@@ -11,6 +11,9 @@
 #include <quill/Frontend.h>
 #include <quill/sinks/ConsoleSink.h>
 
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_vulkan.h>
+
 #include "VulkanContext.hpp"
 #include "RenderSurface.hpp"
 #include "CommandDispatcher.hpp"
@@ -23,16 +26,14 @@
 using namespace amora;
 
 void Engine::startLogging() {
-    quill::Backend::start();
     const auto sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("AMORA_console_sink");
     logger = quill::Frontend::create_or_get_logger("AMORA", sink);
-    ENGINE_INFO("Successfully initialized AMORA logger.");
+    ENGINE_INFO("Started AMORA logging");
 }
 
 void Engine::endLogging() {
-    ENGINE_INFO("Stopping AMORA log.");
+    ENGINE_INFO("Stopped AMORA logging");
     logger->flush_log();
-    quill::Backend::stop();
 }
 
 Engine::Engine(GLFWwindow* window) {
@@ -62,22 +63,9 @@ Engine::Engine(GLFWwindow* window) {
     mPipeline = std::make_unique<graphics::GraphicsPipeline>(device, shaders, nullptr, *mSwapChain);
 }
 
-ImGuiEngineData Engine::beginUserInterface(GLFWwindow *window) const {
+ImGuiEngineData Engine::beginInterfaceBackend(GLFWwindow *window) const {
     IMGUI_CHECKVERSION();
     auto* guiContext = ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void) io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-    ImGui::StyleColorsDark();
-
-    const float scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.ScaleAllSizes(scale);
-    style.FontScaleDpi = scale;
-
-    style.FontSizeBase = 13.0f;
-    ImFont* robotoFont = io.Fonts->AddFontFromFileTTF("res/fonts/Roboto/Roboto-VariableFont_wdth,wght.ttf");
-    ImGui::PushFont(robotoFont);
 
     ImGui_ImplGlfw_InitForVulkan(window, true);
     ImGui_ImplVulkan_InitInfo initInfo = {
@@ -106,7 +94,7 @@ ImGuiEngineData Engine::beginUserInterface(GLFWwindow *window) const {
     return data;
 }
 
-void Engine::endUserInterface() const {
+void Engine::endInterfaceBackend() const {
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -146,7 +134,28 @@ void transitionImageLayout(
     dispatcher.getCommandBuffer(frameIndex).pipelineBarrier2(dependency_info);
 }
 
-void Engine::recordCommandBuffer(uint32_t frameIndex, uint32_t imageIndex) const {
+void Engine::recreateSwapChain() const { mSwapChain->recreate(); }
+
+void Engine::beginFrame() {
+    auto& device = mContext->getDevice();
+
+    auto& drawFence = (*mDrawFences)[mFrameIndex];
+    auto& presentCompleteSemaphore = (*mPresentCompleteSemaphores)[mFrameIndex];
+
+    if (device.waitForFences(*drawFence, vk::True, UINT64_MAX) != vk::Result::eSuccess) {
+        throw std::runtime_error("Failed to wait for fences!");
+    }
+
+    auto [successful, imageIndex] = mSwapChain->acquireNextImage(presentCompleteSemaphore);
+    mImageIndex = imageIndex;
+
+    if (!successful) {
+        mSwapChain->recreate();
+        mFrameIndex = (mFrameIndex + 1) % config::rendering::MAX_FRAMES_IN_FLIGHT;
+        return;
+    }
+
+    device.resetFences(*drawFence);
 
     const vk::raii::CommandBuffer& commandBuffer = mGraphicsDispatcher->getCommandBuffer(mFrameIndex);
     commandBuffer.reset();
@@ -185,14 +194,6 @@ void Engine::recordCommandBuffer(uint32_t frameIndex, uint32_t imageIndex) const
 
     commandBuffer.beginRendering(renderInfo);
 
-    ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
-    ImGui::Render();
-    ImDrawData* drawData = ImGui::GetDrawData();
-
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline->get());
     commandBuffer.setViewport(0, vk::Viewport(
         0.0f, 0.0f,
         static_cast<float>(swapChainExtent.width), static_cast<float>(swapChainExtent.height),
@@ -200,6 +201,20 @@ void Engine::recordCommandBuffer(uint32_t frameIndex, uint32_t imageIndex) const
     ));
     commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), swapChainExtent));
 
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
+void Engine::endFrame() {
+    ImGui::Render();
+    ImDrawData* drawData = ImGui::GetDrawData();
+
+    const vk::raii::CommandBuffer& commandBuffer = mGraphicsDispatcher->getCommandBuffer(mFrameIndex);
+    auto& drawFence = (*mDrawFences)[mFrameIndex];
+    auto& presentCompleteSemaphore = (*mPresentCompleteSemaphores)[mFrameIndex];
+
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline->get());
     commandBuffer.draw(3, 1, 0, 0);
 
     ImGui_ImplVulkan_RenderDrawData(drawData, *commandBuffer);
@@ -210,7 +225,7 @@ void Engine::recordCommandBuffer(uint32_t frameIndex, uint32_t imageIndex) const
         *mSwapChain,
         *mGraphicsDispatcher,
         mFrameIndex,
-        imageIndex,
+        mImageIndex,
         vk::ImageLayout::eColorAttachmentOptimal,
         vk::ImageLayout::ePresentSrcKHR,
         vk::AccessFlagBits2::eColorAttachmentWrite,             // srcAccessMask
@@ -220,33 +235,8 @@ void Engine::recordCommandBuffer(uint32_t frameIndex, uint32_t imageIndex) const
     );
 
     commandBuffer.end();
-}
 
-void Engine::renderActive() {
-    auto& device = mContext->getDevice();
-
-    auto& drawFence = (*mDrawFences)[mFrameIndex];
-    auto& presentCompleteSemaphore = (*mPresentCompleteSemaphores)[mFrameIndex];
-
-    if (device.waitForFences(*drawFence, vk::True, UINT64_MAX) != vk::Result::eSuccess) {
-        throw std::runtime_error("Failed to wait for fences!");
-    }
-
-    auto [successful, imageIndex] = mSwapChain->acquireNextImage(presentCompleteSemaphore);
-
-    if (!successful) {
-        mSwapChain->recreate();
-        mFrameIndex = (mFrameIndex + 1) % config::rendering::MAX_FRAMES_IN_FLIGHT;
-        return;
-    }
-
-    device.resetFences(*drawFence);
-
-    const vk::raii::CommandBuffer& commandBuffer = mGraphicsDispatcher->getCommandBuffer(mFrameIndex);
-
-    recordCommandBuffer(mFrameIndex, imageIndex);
-
-    auto& renderCompleteSemaphore = (*mRenderCompleteSemaphores)[imageIndex];
+    auto& renderCompleteSemaphore = (*mRenderCompleteSemaphores)[mImageIndex];
 
     vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
     const vk::SubmitInfo submitInfo {
@@ -266,17 +256,20 @@ void Engine::renderActive() {
         .pWaitSemaphores    = &*renderCompleteSemaphore,
         .swapchainCount     = 1,
         .pSwapchains        = &*mSwapChain->get(),
-        .pImageIndices      = &imageIndex
+        .pImageIndices      = &mImageIndex
     };
 
     if (const vk::Result result = mGraphicsDispatcher->getQueue().presentKHR(presentInfo);
-        result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR || mSwapChainInvalidated)
-        {
-        mSwapChainInvalidated = false;
+        result == vk::Result::eSuboptimalKHR || result == vk::Result::eErrorOutOfDateKHR)
+    {
         mSwapChain->recreate();
     }
 
     mFrameIndex = (mFrameIndex + 1) % config::rendering::MAX_FRAMES_IN_FLIGHT;
+}
+
+void Engine::waitIdle() const {
+    mContext->getDevice().waitIdle();
 }
 
 Engine::~Engine() {

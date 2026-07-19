@@ -22,11 +22,10 @@
 #define MAVIS_ERROR(...) LOG_ERROR(mavis::logger, __VA_ARGS__)
 
 namespace mavis {
+    constexpr auto APPLICATION_VERSION = "0.1.0";
+
     /// Global logger for the engine.
     inline quill::Logger* logger = nullptr;
-
-    constexpr int RENDER_MODE_DIRTY = 0;
-    constexpr int RENDER_MODE_CONTINUOUS = 1;
 
     class OpenMaVisApplication {
     public:
@@ -41,15 +40,6 @@ namespace mavis {
 
         void invalidateSurface() { mSurfaceInvalidated = true; };
 
-        void invalidateRender() { mRenderInvalidated = true; }
-
-        void setRenderMode(const int renderMode) {
-            if (renderMode != RENDER_MODE_DIRTY && renderMode != RENDER_MODE_CONTINUOUS) {
-                throw std::invalid_argument("Invalid render mode: " + std::to_string(renderMode));
-            }
-            mRenderMode = renderMode;
-        };
-
     private:
         void mainLoop();
 
@@ -57,9 +47,7 @@ namespace mavis {
 
         void setupResizeCallback();
 
-        int mRenderMode = RENDER_MODE_DIRTY;
         bool mSurfaceInvalidated = false;
-        bool mRenderInvalidated = false;
 
         /// Resizing operation doesn't need more than 30 FPS.
         int mMinResizeDelay = static_cast<int>(1.0f / 30.0f);
@@ -80,8 +68,8 @@ namespace mavis {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        const int windowWidth = static_cast<int>(videoMode->width * 0.5);
-        const int windowHeight = static_cast<int>(videoMode->height * 0.6);
+        const int windowWidth = static_cast<int>(videoMode->width * 0.7);
+        const int windowHeight = static_cast<int>(videoMode->height * 0.8);
 
         GLFWwindow* win = glfwCreateWindow(windowWidth, windowHeight, "OpenMaVis", NULL, NULL);
         glfwSetCursor(win, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));

@@ -38,7 +38,7 @@ namespace amora {
 
         [[nodiscard]] uint32_t getFamilyIndex() const { return mQueueIndex; }
         [[nodiscard]] auto& getQueue() const { return mQueue; }
-        [[nodiscard]] auto& getCommandBuffer(const int index) const { return mCommandBuffers[index]; }
+        [[nodiscard]] auto& getCommandBuffer(const uint32_t index) const { return mCommandBuffers[index]; }
 
     private:
         uint32_t mQueueIndex;

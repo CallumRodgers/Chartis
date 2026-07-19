@@ -20,18 +20,16 @@ void OpenMaVisApplication::beginLogging() {
     quill::Backend::start();
     const auto sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("OpenMaVis_console_sink");
     logger = quill::Frontend::create_or_get_logger("OpenMaVis", sink);
-    MAVIS_INFO("Successfully initialized OpenMaVis logger.");
+    MAVIS_INFO("Started OpenMaVis logging");
 }
 
 void OpenMaVisApplication::endLogging() {
-    MAVIS_INFO("Ending OpenMaVis logging.");
+    MAVIS_INFO("Stopped OpenMaVis logging");
     logger->flush_log();
     quill::Backend::stop();
 }
 
-OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv)
-    : mWindow(createWindow())
-{
+OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv) : mWindow(createWindow()) {
     setupResizeCallback();
 }
 
@@ -51,50 +49,55 @@ void OpenMaVisApplication::mainLoop() {
     // By creating the Engine object here, it'll be automatically cleaned up
     // once it goes out of scope (i.e., the main loop exits).
     amora::Engine engine(mWindow);
-    amora::ImGuiEngineData data = engine.beginUserInterface(mWindow);
+    const amora::ImGuiEngineData data = engine.beginInterfaceBackend(mWindow);
 
-    setRenderMode(RENDER_MODE_CONTINUOUS);
+    // Sets up the ImGui context on the application side, and sets up
+    // interface styling, loads fonts, icons, etc.
+    UserInterface::setup(data);
 
-    //ImGui::SetAllocatorFunctions(data.AllocFunc, data.FreeFunc, data.AllocUserData);
-    //ImGui::SetCurrentContext(data.Context);
+    // For our purposes we don't need to be rendering at V-Sync FPS non-stop if the
+    // user is not interacting with us; we can idle the GPU usage to 0% after 5 frames
+    // since the last input. The exception is if a scene is currently under animation,
+    // in which case the engine will tell us, and the application will render continuously.
+    constexpr int maxContinuousFrames = 5;
+    int frameIndex = 0;
+    bool waitEvents = false;
 
-    bool firstLoop = true;
     while (!glfwWindowShouldClose(mWindow)) {
-
-        if (firstLoop) {
-            mRenderInvalidated = true;
-        }
-
         //////////////////////
         // EVENT PROCESSING //
         //////////////////////
 
-        if (firstLoop) {
-            glfwPollEvents();
-            firstLoop = false;
-        } else if (mRenderMode == RENDER_MODE_DIRTY) {
+        if (waitEvents) {
             glfwWaitEvents();
-        } else { // RENDER_MODE_CONTINUOUS
+            waitEvents = false;
+        } else {
             glfwPollEvents();
         }
 
         if (mSurfaceInvalidated) {
-            engine.invalidateSwapChain();
+            engine.recreateSwapChain();
             mSurfaceInvalidated = false;
-            mRenderInvalidated = true;
         }
 
-        ///////////////////////
-        // RENDERING SURFACE //
-        ///////////////////////
+        ////////////////////////////
+        // RENDERING SCENE AND UI //
+        ////////////////////////////
 
-        if (mRenderInvalidated || mRenderMode == RENDER_MODE_CONTINUOUS) {
-            engine.renderActive();
-            mRenderInvalidated = false;
+        engine.beginFrame();
+        UserInterface::layout();
+        engine.endFrame();
+
+        // Updating frame variables and checking if we should idle the application.
+        frameIndex++;
+        if (frameIndex == maxContinuousFrames) {
+            frameIndex = 0;
+            waitEvents = true;
         }
     }
 
-    engine.endUserInterface();
+    engine.waitIdle();
+    engine.endInterfaceBackend();
 }
 
 void OpenMaVisApplication::cleanUpAndTerminate() const {

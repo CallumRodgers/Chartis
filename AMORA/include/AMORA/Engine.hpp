@@ -11,8 +11,7 @@
 #include <AMORA/Scene.hpp>
 #include <memory>
 
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_vulkan.h>
+#include "ImGuiEngineData.hpp"
 
 /**
  * Namespace of the Animated Mathematical Object Rendering Architecture (AMORA). The Vulkan code is entirely
@@ -34,13 +33,6 @@ namespace amora {
     namespace graphics {
         class GraphicsPipeline;
     }
-
-    struct ImGuiEngineData {
-        ImGuiContext* Context = nullptr;
-        ImGuiMemAllocFunc AllocFunc = nullptr;
-        ImGuiMemFreeFunc FreeFunc = nullptr;
-        void* AllocUserData = nullptr;
-    };
 
     /**
      * The <code>Engine</code> class is the basis of the public AMORA API. Besides the explicit
@@ -78,15 +70,17 @@ namespace amora {
          */
         const Scene& changeActiveScene(const Scene& newScene);
 
-        /** Renders a frame of the currently active Scene to the swap chain. */
-        void renderActive();
-
         /** Indicates to the engine that the swap chain is no longer valid,
          * and must be recreated. */
-        void invalidateSwapChain() { mSwapChainInvalidated = true; };
+        void recreateSwapChain() const;
 
-        ImGuiEngineData beginUserInterface(GLFWwindow* window) const;
-        void endUserInterface() const;
+        ImGuiEngineData beginInterfaceBackend(GLFWwindow* window) const;
+        void endInterfaceBackend() const;
+
+        void beginFrame();
+        void endFrame();
+
+        void waitIdle() const;
 
     private:
         /// Holds the Vulkan instance and devices. Automatically initialised through
@@ -109,12 +103,9 @@ namespace amora {
         std::unique_ptr<graphics::GraphicsPipeline> mPipeline;
 
         uint32_t mFrameIndex = 0;
-
-        bool mSwapChainInvalidated = false;
+        uint32_t mImageIndex = 0;
 
         std::vector<Scene> mLoadedScenes;
-
-        void recordCommandBuffer(uint32_t frameIndex, uint32_t imageIndex) const;
 
         void terminate() const;
 

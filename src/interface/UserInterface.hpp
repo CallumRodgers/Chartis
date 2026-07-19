@@ -7,7 +7,7 @@
 #ifndef OPENMAVIS_USERINTERFACE_HPP
 #define OPENMAVIS_USERINTERFACE_HPP
 
-#include <GLFW/glfw3.h>
+#include <AMORA/ImGuiEngineData.hpp>
 
 namespace amora {
     class Engine;
@@ -16,7 +16,10 @@ namespace amora {
 namespace mavis {
     class UserInterface {
     public:
-        static void begin(GLFWwindow* window, const amora::Engine& engine);
+        static void setup(const amora::ImGuiEngineData& data);
+
+        static void layout();
+
         static void end(const amora::Engine& engine);
     };
 }
