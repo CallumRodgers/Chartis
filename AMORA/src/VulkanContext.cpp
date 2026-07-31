@@ -1,8 +1,7 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #include <GLFW/glfw3.h>
 
@@ -142,7 +141,7 @@ void VulkanContext::pickPhysicalDevice() {
 
     if (capableDevices.size() == 1) {
         const auto device = capableDevices.at(0);
-        ENGINE_INFO("Automatically selected physical device: {}", std::string_view(device.getProperties().deviceName.data()));
+        AMORA_INFO("Automatically selected physical device: {}", std::string_view(device.getProperties().deviceName.data()));
         mPhysicalDevice = device;
     } else {
         std::cout << "Found " << physicalDevices.size() << " devices with Vulkan support:" << std::endl;

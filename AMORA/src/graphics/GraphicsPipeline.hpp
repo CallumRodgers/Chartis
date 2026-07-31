@@ -1,8 +1,7 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #ifndef OPENMAVIS_GRAPHICSPIPELINE_HPP
 #define OPENMAVIS_GRAPHICSPIPELINE_HPP
@@ -17,10 +16,14 @@ namespace amora::graphics {
      */
     class GraphicsPipeline final : public Pipeline {
     public:
-        GraphicsPipeline(
-            const vk::raii::Device& device, const std::map<ShaderStage, std::shared_ptr<Shader> >& shaders,
-            const Pipeline* previousPipeline, const SwapChain& swapChain
-            );
+        struct GraphicsPipelineCreateInfo {
+            const ShaderMap& shaderMap;
+            const Pipeline* previousPipeline;
+            const vk::SurfaceFormatKHR& surfaceFormat;
+            const std::vector<vk::DescriptorSetLayout> requestedLayouts;
+        };
+
+        GraphicsPipeline(const vk::raii::Device& device, const GraphicsPipelineCreateInfo& createInfo);
 
         [[nodiscard]] const vk::PipelineRenderingCreateInfo& getRenderingCreateInfo() const {
             return mRenderingCreateInfo;
@@ -29,7 +32,7 @@ namespace amora::graphics {
     private:
         vk::PipelineRenderingCreateInfo mRenderingCreateInfo;
 
-        [[nodiscard]] std::vector<vk::PipelineShaderStageCreateInfo> createStages(const std::map<ShaderStage, std::shared_ptr<Shader> >& shaders);
+
     };
 }
 

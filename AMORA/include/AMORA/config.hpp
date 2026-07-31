@@ -1,8 +1,7 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #ifndef OPENMAVIS_CONFIG_HPP
 #define OPENMAVIS_CONFIG_HPP
@@ -50,6 +49,9 @@ namespace amora::config {
         constexpr float COMPUTE_QUEUE_PRIORITY = 0.4f;
 
         constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+
+        constexpr uint32_t MAX_BINDING_SET_INDEX = 3;
+        constexpr uint32_t MAX_BINDING_INDEX = 15;
     }
 
 }

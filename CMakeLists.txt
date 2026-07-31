@@ -88,6 +88,10 @@ endfunction()
 set(GRAPHICS_SHADERS_SOURCES
         AMORA/shaders/shader_vert.slang
         AMORA/shaders/shader_frag.slang
+        AMORA/shaders/background_vert.slang
+        AMORA/shaders/background_frag.slang
+        AMORA/shaders/axis_vert.slang
+        AMORA/shaders/axis_frag.slang
 )
 set(COMPUTE_SHADERS_SOURCES
 )
@@ -106,13 +110,18 @@ target_sources(AMORA
         AMORA/include/AMORA/ImGuiEngineData.hpp
         AMORA/include/AMORA/config.hpp
         AMORA/include/AMORA/algebra_types.hpp
+        AMORA/include/AMORA/vector_utils.hpp
         AMORA/include/AMORA/logger.hpp
+        AMORA/include/AMORA/FrameGroup.hpp
         AMORA/include/AMORA/Scene.hpp
         AMORA/include/AMORA/Scene2D.hpp
-        AMORA/include/AMORA/Scene3D.hpp
+        #AMORA/include/AMORA/Scene3D.hpp
+        AMORA/include/AMORA/Object2D.hpp
 
     PRIVATE
         AMORA/src/Engine.cpp
+
+        AMORA/src/vulkan_utils.hpp
 
         AMORA/src/VulkanContext.hpp
         AMORA/src/VulkanContext.cpp
@@ -124,10 +133,24 @@ target_sources(AMORA
         AMORA/src/SwapChain.cpp
         AMORA/src/Shader.hpp
         AMORA/src/Shader.cpp
+        AMORA/src/DescriptorAllocator.hpp
+        AMORA/src/DescriptorAllocator.cpp
+        AMORA/src/DescriptorLayoutManager.hpp
+        AMORA/src/DescriptorLayoutManager.cpp
+        AMORA/src/DescriptorSetData.hpp
+        AMORA/src/DescriptorSetData.cpp
+        AMORA/src/UniformBuffer.hpp
+        AMORA/src/UniformBuffer.cpp
         AMORA/src/Pipeline.hpp
         AMORA/src/Pipeline.cpp
         AMORA/src/FenceGroup.hpp
         AMORA/src/SemaphoreGroup.hpp
+
+        # Scene classes implementations
+        AMORA/src/scene/Scene.cpp
+        AMORA/src/scene/Scene2D.cpp
+        AMORA/src/scene/objects/Object2D.cpp
+        #AMORA/src/scene/Scene3D.cpp
 
         # Graphics classes implementations
         AMORA/src/graphics/GraphicsPipeline.hpp
@@ -177,11 +200,17 @@ set(SOURCES src/main.cpp
         # Sources
         src/OpenMaVisApplication.cpp
 
+        src/control/EventHandler2D.hpp
+        src/control/EventHandler2D.cpp
+        src/control/EventHandler3D.hpp
+
         src/interface/UserInterface.hpp
         src/interface/UserInterface.cpp
+        src/interface/MainMenuBar.hpp
+        src/interface/TabBar.hpp
 
         # Headers
-        include/OpenMaVisApplication.hpp
+        src/OpenMaVisApplication.hpp
 )
 
 # =========================================

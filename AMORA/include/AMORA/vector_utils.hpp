@@ -1,0 +1,31 @@
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
+
+#ifndef OPENMAVIS_VECTOR_UTILS_HPP
+#define OPENMAVIS_VECTOR_UTILS_HPP
+
+#include <vector>
+
+namespace amora::vector_utils {
+    template <typename T> static bool contains(const std::vector<T>& vector, const T& obj) {
+        for (T member : vector) {
+            if (member == obj) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    template <typename T> static int indexOf(const std::vector<T>& vector, const T& element) {
+        for (int index = 0; index < vector.size(); index++) {
+            if (vector[index] == element) {
+                return index;
+            }
+        }
+        return -1;
+    }
+}
+
+#endif //OPENMAVIS_VECTOR_UTILS_HPP

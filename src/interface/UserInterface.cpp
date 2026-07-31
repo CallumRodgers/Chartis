@@ -1,16 +1,19 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #include "UserInterface.hpp"
 
 #include <imgui.h>
+#include <stdexcept>
 #include <backends/imgui_impl_glfw.h>
 #include <GLFW/glfw3.h>
 
-using namespace mavis;
+#include "MainMenuBar.hpp"
+#include "TabBar.hpp"
+
+using namespace mavis::interface;
 
 void UserInterface::setup(const amora::ImGuiEngineData& data) {
     ImGui::SetAllocatorFunctions(data.AllocFunc, data.FreeFunc, data.AllocUserData);
@@ -19,6 +22,7 @@ void UserInterface::setup(const amora::ImGuiEngineData& data) {
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     ImGui::StyleColorsDark();
 
@@ -33,7 +37,15 @@ void UserInterface::setup(const amora::ImGuiEngineData& data) {
 }
 
 void UserInterface::layout() {
-    ImGui::ShowDemoWindow();
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDecoration;
+    if (ImGui::Begin("OpenMaVis", nullptr, flags)) {
+        ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
+        MainMenuBar::create();
+        TabBar::create();
 
+        ImGui::End();
+    } else {
+        throw std::runtime_error("Could not create main ImGui window!");
+    }
 }

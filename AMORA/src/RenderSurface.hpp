@@ -1,8 +1,7 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #ifndef OPENMAVIS_RENDERSURFACE_HPP
 #define OPENMAVIS_RENDERSURFACE_HPP
@@ -34,11 +33,11 @@ namespace amora {
             return mContext.getPhysicalDevice().getSurfacePresentModesKHR(*mSurface);
         }
         /** Retrieves the current framebuffer size of the window. */
-        [[nodiscard]] std::pair<int, int> getCurrentFramebufferSize() const;
+        [[nodiscard]] std::pair<uint32_t, uint32_t> getCurrentFramebufferSize() const;
         /** Pauses the engine until the framebuffer size is valid (i.e., non-zero).
          * This is mostly useful for when the window was minimised, and we want to stop all
          * graphics work. */
-        [[nodiscard]] std::pair<int, int> pauseUntilValidSize() const;
+        [[nodiscard]] std::pair<uint32_t, uint32_t> pauseUntilValidSize() const;
 
         [[nodiscard]] const vk::raii::SurfaceKHR& getSurface() const noexcept {
             return mSurface;

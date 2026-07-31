@@ -1,8 +1,7 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
@@ -27,6 +26,7 @@ namespace amora {
     class RenderSurface;
     class CommandDispatcher;
     class SwapChain;
+    class DescriptorLayoutManager;
     class SemaphoreGroup;
     class FenceGroup;
 
@@ -53,26 +53,27 @@ namespace amora {
          * Loads the given Scene in memory. If the scene is already loaded,
          * this does nothing.
          * @param scene The scene to load.
+         * @param setActive Whether the engine  should automatically switch to the new scene.
          */
-        void loadScene(const Scene& scene) const;
+        void loadScene(scene::Scene& scene, bool setActive = false);
 
         /**
          * Unloads the passed Scene from memory. Could happen from limited resources or
          * from closing the scene tab.
          * @param scene The scene to unload.
          */
-        void unloadScene(const Scene& scene) const;
+        void unloadScene(scene::Scene& scene);
 
         /**
          *
          * @param newScene
          * @return The previously active scene.
          */
-        const Scene& changeActiveScene(const Scene& newScene);
+        scene::Scene* changeActiveScene(scene::Scene& newScene);
 
         /** Indicates to the engine that the swap chain is no longer valid,
          * and must be recreated. */
-        void recreateSwapChain() const;
+        void invalidateSurfaceSize(uint32_t width, uint32_t height) const;
 
         ImGuiEngineData beginInterfaceBackend(GLFWwindow* window) const;
         void endInterfaceBackend() const;
@@ -94,18 +95,19 @@ namespace amora {
         std::unique_ptr<CommandDispatcher> mComputeDispatcher;
         /// The set of images that get drawn onto and presented to the screen.
         std::unique_ptr<SwapChain> mSwapChain;
+        /// Handles the descriptors across the application, i.e. the shader bindings, their link
+        /// with data buffers, etc.
+        std::unique_ptr<DescriptorLayoutManager> mDescriptorManager;
 
         std::unique_ptr<SemaphoreGroup> mPresentCompleteSemaphores;
         std::unique_ptr<SemaphoreGroup> mRenderCompleteSemaphores;
         std::unique_ptr<FenceGroup> mDrawFences;
 
-        /// Temporary pipeline.
-        std::unique_ptr<graphics::GraphicsPipeline> mPipeline;
-
         uint32_t mFrameIndex = 0;
         uint32_t mImageIndex = 0;
 
-        std::vector<Scene> mLoadedScenes;
+        std::vector<scene::Scene*> mLoadedScenes;
+        scene::Scene* mActiveScene = nullptr;
 
         void terminate() const;
 

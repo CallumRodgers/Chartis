@@ -1,18 +1,20 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #ifndef OPENMAVIS_PIPELINE_HPP
 #define OPENMAVIS_PIPELINE_HPP
 
-#include "Shader.hpp"
 #include <map>
+
+#include "DescriptorLayoutManager.hpp"
+#include "Shader.hpp"
 
 namespace amora {
     /**
-     *
+     * The <code>Pipeline</code> class encapsulates the general properties of a pipeline object,
+     * whether graphics or compute. Many functions are declared virtual to be implemented in either case.
      */
     class Pipeline {
     public:
@@ -20,16 +22,21 @@ namespace amora {
         virtual ~Pipeline() = default;
 
         [[nodiscard]] auto& get() const { return mPipeline; }
+        [[nodiscard]] auto& getLayout() const noexcept { return mPipelineLayout; }
         [[nodiscard]] auto& getPipelineCache() const { return mPipelineCache; }
 
     protected:
-        explicit Pipeline(const std::map<ShaderStage, std::shared_ptr<Shader> >& shaders) : mShaders(shaders) {}
+        Pipeline(const vk::raii::Device& device,
+                 const std::vector<vk::DescriptorSetLayout>& requiredLayouts,
+                 const ShaderMap& shaders);
 
-        std::map<ShaderStage, std::shared_ptr<Shader> > mShaders;
+        [[nodiscard]] static std::vector<vk::PipelineShaderStageCreateInfo> createStages(const ShaderMap& shaders);
 
-        vk::raii::PipelineLayout mPipelineLayout = nullptr;
-        vk::raii::Pipeline mPipeline = nullptr;
-        vk::raii::PipelineCache mPipelineCache = nullptr;
+        ShaderMap mShaders;
+        std::vector<vk::PipelineShaderStageCreateInfo> mShaderStages;
+        vk::raii::PipelineLayout mPipelineLayout {nullptr};
+        vk::raii::Pipeline mPipeline {nullptr};
+        vk::raii::PipelineCache mPipelineCache {nullptr};
     };
 }
 

@@ -1,8 +1,7 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #include "RenderSurface.hpp"
 
@@ -21,14 +20,14 @@ RenderSurface::RenderSurface(const VulkanContext& context, GLFWwindow* window)
     mSurface = vk::raii::SurfaceKHR(instance, _surface);
 }
 
-std::pair<int, int> RenderSurface::getCurrentFramebufferSize() const {
+std::pair<uint32_t, uint32_t> RenderSurface::getCurrentFramebufferSize() const {
     int w, h;
     glfwGetFramebufferSize(mWindowHandle, &w, &h);
     return {w, h};
 }
 
-std::pair<int, int> RenderSurface::pauseUntilValidSize() const {
-    auto [w, h] = getCurrentFramebufferSize();
+std::pair<uint32_t, uint32_t> RenderSurface::pauseUntilValidSize() const {
+    auto [w, h] = static_cast<std::pair<int, int>>(getCurrentFramebufferSize());
     while (w == 0 || h == 0) {
         glfwWaitEvents();
         glfwGetFramebufferSize(mWindowHandle, &w, &h);

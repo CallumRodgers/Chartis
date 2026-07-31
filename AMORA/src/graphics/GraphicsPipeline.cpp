@@ -1,32 +1,19 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #include "GraphicsPipeline.hpp"
 
+#include <ranges>
+#include <AMORA/vector_utils.hpp>
+
 using namespace amora::graphics;
 
-GraphicsPipeline::GraphicsPipeline(
-    const vk::raii::Device& device, const std::map<ShaderStage, std::shared_ptr<Shader> >& shaders,
-    const Pipeline* previousPipeline, const SwapChain& swapChain
-    ) : Pipeline(shaders)
+GraphicsPipeline::GraphicsPipeline(const vk::raii::Device& device,
+                                   const GraphicsPipelineCreateInfo& createInfo)
+    : Pipeline(device, createInfo.requestedLayouts, createInfo.shaderMap)
 {
-    std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = createStages(shaders);
-
-    // =======================
-    // Creating PipelineLayout
-    // =======================
-
-    vk::PipelineLayoutCreateInfo pipelineLayoutInfo {
-        .setLayoutCount = 0,
-        .pSetLayouts = nullptr,
-        .pushConstantRangeCount = 0,
-        .pPushConstantRanges = nullptr
-    };
-    mPipelineLayout = vk::raii::PipelineLayout(device, pipelineLayoutInfo);
-
     // ====================================================
     // Creating Pipeline fixed functions and configurations
     // ====================================================
@@ -84,13 +71,13 @@ GraphicsPipeline::GraphicsPipeline(
 
     mRenderingCreateInfo = {
         .colorAttachmentCount = 1,
-        .pColorAttachmentFormats = &swapChain.getSurfaceFormat().format
+        .pColorAttachmentFormats = &(createInfo.surfaceFormat.format)
     };
 
     vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateInfoChain = {
         {
-            .stageCount          = static_cast<uint32_t>(shaderStages.size()),
-            .pStages             = shaderStages.data(),
+            .stageCount          = static_cast<uint32_t>(mShaderStages.size()),
+            .pStages             = mShaderStages.data(),
             .pVertexInputState   = &vertexInputInfo,
             .pInputAssemblyState = &inputAssemblyInfo,
             .pViewportState      = &viewportStateInfo,
@@ -104,8 +91,8 @@ GraphicsPipeline::GraphicsPipeline(
         mRenderingCreateInfo
     };
 
-    if (previousPipeline != nullptr) {
-        const vk::raii::PipelineCache& cache = previousPipeline->getPipelineCache();
+    if (createInfo.previousPipeline != nullptr) {
+        const vk::raii::PipelineCache& cache = createInfo.previousPipeline->getPipelineCache();
         mPipeline = vk::raii::Pipeline(
             device, cache, pipelineCreateInfoChain.get<vk::GraphicsPipelineCreateInfo>()
         );
@@ -114,51 +101,4 @@ GraphicsPipeline::GraphicsPipeline(
             device, nullptr, pipelineCreateInfoChain.get<vk::GraphicsPipelineCreateInfo>()
         );
     }
-}
-
-std::vector<vk::PipelineShaderStageCreateInfo> GraphicsPipeline::createStages(const std::map<ShaderStage, std::shared_ptr<Shader> > &shaders) {
-    // std::map.at() will throw an error if either the vertex or the
-    // fragment shaders aren't specified. The tesselation shader is optional.
-    const std::shared_ptr<Shader> vertexShader = shaders.at(VERTEX);
-    const std::shared_ptr<Shader> fragmentShader = shaders.at(FRAGMENT);
-
-    // Creating vertex shader info.
-    vk::PipelineShaderStageCreateInfo vertexStageInfo {
-        .stage = vk::ShaderStageFlagBits::eVertex,
-        .module = vertexShader->getModule(),
-        .pName = SHADER_ENTRY_POINT
-    };
-
-    vk::PipelineShaderStageCreateInfo fragmentStageInfo {
-        .stage = vk::ShaderStageFlagBits::eFragment,
-        .module = fragmentShader->getModule(),
-        .pName = SHADER_ENTRY_POINT
-    };
-
-    if (shaders.contains(TESSELATION)) {
-        const std::shared_ptr<Shader> tesselationShader = shaders.at(TESSELATION);
-
-        vk::PipelineShaderStageCreateInfo tesselationControlStageInfo {
-            .stage = vk::ShaderStageFlagBits::eTessellationControl,
-            .module = tesselationShader->getModule(),
-            .pName = SHADER_ENTRY_POINT
-        };
-
-        vk::PipelineShaderStageCreateInfo tesselationEvaluationStageInfo {
-            .stage = vk::ShaderStageFlagBits::eTessellationEvaluation,
-            .module = tesselationShader->getModule(),
-            .pName = SHADER_ENTRY_POINT
-        };
-
-        return {
-            vertexStageInfo,
-            tesselationControlStageInfo,
-            tesselationEvaluationStageInfo,
-            fragmentStageInfo
-        };
-    }
-    return {
-        vertexStageInfo,
-        fragmentStageInfo
-    };
 }

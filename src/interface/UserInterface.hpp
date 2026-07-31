@@ -1,8 +1,7 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #ifndef OPENMAVIS_USERINTERFACE_HPP
 #define OPENMAVIS_USERINTERFACE_HPP
@@ -13,7 +12,7 @@ namespace amora {
     class Engine;
 }
 
-namespace mavis {
+namespace mavis::interface {
     class UserInterface {
     public:
         static void setup(const amora::ImGuiEngineData& data);

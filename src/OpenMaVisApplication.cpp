@@ -1,50 +1,63 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #include "OpenMaVisApplication.hpp"
 
 #include "interface/UserInterface.hpp"
 
 #include <AMORA/Engine.hpp>
-
-#include <quill/Backend.h>
-#include <quill/Frontend.h>
-#include <quill/sinks/ConsoleSink.h>
+#include <AMORA/Scene2D.hpp>
 
 using namespace mavis;
 
-void OpenMaVisApplication::beginLogging() {
-    quill::BackendOptions options;
-    options.sleep_duration = std::chrono::milliseconds{50};
-    quill::Backend::start(options);
+OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv)
+    : mWindow(createWindow()),
+      mEventHandler2D(mWindow)
+      //mEventHandler3D(mWindow)
+{
+    int w, h;
+    glfwGetFramebufferSize(mWindow, &w, &h);
+    mEventHandler2D.updateSurfaceSize(w, h);
 
-    const auto sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("OpenMaVis_console_sink");
-    logger = quill::Frontend::create_or_get_logger("OpenMaVis", sink);
-    MAVIS_INFO("Started OpenMaVis logging");
-}
-
-void OpenMaVisApplication::endLogging() {
-    MAVIS_INFO("Stopped OpenMaVis logging");
-    logger->flush_log();
-    quill::Backend::stop();
-}
-
-OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv) : mWindow(createWindow()) {
-    setupResizeCallback();
-}
-
-void OpenMaVisApplication::setupResizeCallback() {
     glfwSetWindowUserPointer(mWindow, this);
-    glfwSetFramebufferSizeCallback(mWindow, framebufferResizeCallback);
+
+    //////////////////////////
+    // SETUP GLFW CALLBACKS //
+    //////////////////////////
+
+    // Setting up resize callback.
+    glfwSetFramebufferSizeCallback(mWindow, callbacks::onFramebufferResizeCallback);
+    // Setting up EventHandler callbacks.
+    glfwSetKeyCallback(mWindow, callbacks::onKeyEventCallback);
+    glfwSetCursorPosCallback(mWindow, callbacks::onMouseMotionEventCallback);
+    glfwSetMouseButtonCallback(mWindow, callbacks::onMouseButtonEventCallback);
+    glfwSetScrollCallback(mWindow, callbacks::onScrollEventCallback);
+}
+
+void OpenMaVisApplication::toggleFullscreenMode() {
+    GLFWmonitor* currentMonitor = glfwGetWindowMonitor(mWindow);
+
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    if (currentMonitor == nullptr) { // Window is in windowed mode.
+        glfwGetWindowPos(mWindow, &mLastWindowX, &mLastWindowY);
+        glfwGetWindowSize(mWindow, &mLastWindowWidth, &mLastWindowHeight);
+
+        glfwSetWindowMonitor(mWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    } else { // Window is full-screen.
+        glfwSetWindowMonitor(mWindow, nullptr, mLastWindowX, mLastWindowY, mLastWindowWidth, mLastWindowHeight, mode->refreshRate);
+    }
 }
 
 void OpenMaVisApplication::run() {
 
     mainLoop();
-    cleanUpAndTerminate();
+
+    glfwDestroyWindow(mWindow);
+    glfwTerminate();
 }
 
 void OpenMaVisApplication::mainLoop() {
@@ -54,9 +67,15 @@ void OpenMaVisApplication::mainLoop() {
     amora::Engine engine(mWindow);
     const amora::ImGuiEngineData data = engine.beginInterfaceBackend(mWindow);
 
+    using interface::UserInterface;
     // Sets up the ImGui context on the application side, and sets up
     // interface styling, loads fonts, icons, etc.
     UserInterface::setup(data);
+
+    auto scene = amora::scene::Scene2D("Default");
+    engine.loadScene(scene, true);
+
+    mEventHandler2D.setActiveScene(&scene);
 
     // For our purposes we don't need to be rendering at V-Sync FPS non-stop if the
     // user is not interacting with us; we can idle the GPU usage to 0% after 5 frames
@@ -79,7 +98,10 @@ void OpenMaVisApplication::mainLoop() {
         }
 
         if (mSurfaceInvalidated) {
-            engine.recreateSwapChain();
+            int w, h;
+            glfwGetFramebufferSize(mWindow, &w, &h);
+            engine.invalidateSurfaceSize(w, h);
+            mEventHandler2D.updateSurfaceSize(w, h);
             mSurfaceInvalidated = false;
         }
 
@@ -87,8 +109,11 @@ void OpenMaVisApplication::mainLoop() {
         // RENDERING SCENE AND UI //
         ////////////////////////////
 
+        // Sets everything up for a new frame to be drawn.
         engine.beginFrame();
-        UserInterface::layout();
+        // Not using the UI for now in this branch.
+        //UserInterface::layout();
+        // Submits the draw commands to the queue and presents the image.
         engine.endFrame();
 
         // Updating frame variables and checking if we should idle the application.
@@ -97,18 +122,40 @@ void OpenMaVisApplication::mainLoop() {
             frameIndex = 0;
             waitEvents = true;
         }
-    }
+    } // Main loop.
 
     engine.waitIdle();
     engine.endInterfaceBackend();
 }
 
-void OpenMaVisApplication::cleanUpAndTerminate() const {
-    glfwDestroyWindow(mWindow);
-    glfwTerminate();
-}
+/////////////////////////////////////////////////////////////////////////////////////////
+// GLFW CALLBACKS
+/////////////////////////////////////////////////////////////////////////////////////////
 
-void mavis::framebufferResizeCallback(GLFWwindow *window, int width, int height) {
+void callbacks::onFramebufferResizeCallback(GLFWwindow* window, int width, int height) {
     const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
     app->invalidateSurface();
+}
+
+void callbacks::onKeyEventCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
+    if (key == GLFW_KEY_F11 && action == GLFW_PRESS && mods == 0) {
+        app->toggleFullscreenMode();
+    }
+    app->mEventHandler2D.processKeyEvent(key, scancode, action, mods);
+}
+
+void callbacks::onMouseMotionEventCallback(GLFWwindow* window, double xpos, double ypos) {
+    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
+    app->mEventHandler2D.processMouseMotionEvent(xpos, ypos);
+}
+
+void callbacks::onMouseButtonEventCallback(GLFWwindow* window, int button, int action, int mods) {
+    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
+    app->mEventHandler2D.processMouseButtonEvent(button, action, mods);
+}
+
+void callbacks::onScrollEventCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
+    app->mEventHandler2D.processScrollEvent(xoffset, yoffset);
 }

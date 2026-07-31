@@ -1,20 +1,22 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #ifndef OPENMAVIS_SHADER_HPP
 #define OPENMAVIS_SHADER_HPP
 
+#include <map>
+#include <AMORA/config.hpp>
 #include <vulkan/vulkan_raii.hpp>
 
 namespace amora {
     enum ShaderStage {
-        VERTEX,
-        TESSELATION,
-        FRAGMENT,
-        COMPUTE
+        Vertex,
+        TesselationControl,
+        TesselationEvaluation,
+        Fragment,
+        Compute
     };
 
     /// Note that while Slang allows naming the entry something else,
@@ -37,10 +39,18 @@ namespace amora {
         std::string mShaderFileName;
         std::vector<char> mShaderBytecode;
 
-        vk::raii::ShaderModule mModule = nullptr;
+        vk::raii::ShaderModule mModule {nullptr};
 
         void prepareShaderBytecode();
     };
+
+    /**
+     * A ShaderMap is a std::map that associates a Shader object with its respective
+     * pipeline stage, like Vertex, Fragment, Compute, etc. Maps for graphics pipelines
+     * <b>must</b> provide valid Vertex and Fragment shader objects, otherwise an error
+     * will be thrown. Tesselation shaders are optional.
+     */
+    typedef std::map<ShaderStage, std::shared_ptr<Shader> > ShaderMap;
 }
 
 #endif //OPENMAVIS_SHADER_HPP

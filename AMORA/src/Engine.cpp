@@ -1,11 +1,11 @@
-////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 Callum L. Rodgers                                            /
-// SPDX-License-Identifier: MIT                                                    /
-// Full license text available in the LICENSE file at the root of this repository. /
-////////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Copyright (c) 2026 Callum L. Rodgers
+// SPDX-License-Identifier: MIT
+//==============================================================================
 
 #include <AMORA/Engine.hpp>
 #include <AMORA/logger.hpp>
+#include <AMORA/vector_utils.hpp>
 
 #include <quill/Backend.h>
 #include <quill/Frontend.h>
@@ -14,53 +14,70 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
 
-#include "VulkanContext.hpp"
-#include "RenderSurface.hpp"
 #include "CommandDispatcher.hpp"
-#include "SwapChain.hpp"
-#include "Shader.hpp"
-#include "graphics/GraphicsPipeline.hpp"
-#include "SemaphoreGroup.hpp"
+#include "DescriptorLayoutManager.hpp"
 #include "FenceGroup.hpp"
+#include "RenderSurface.hpp"
+#include "SemaphoreGroup.hpp"
+#include "Shader.hpp"
+#include "SwapChain.hpp"
+#include "VulkanContext.hpp"
+#include "graphics/GraphicsPipeline.hpp"
 
 using namespace amora;
 
 void Engine::startLogging() {
     const auto sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("AMORA_console_sink");
     logger = quill::Frontend::create_or_get_logger("AMORA", sink);
-    ENGINE_INFO("Started AMORA logging");
+    AMORA_INFO("Started AMORA logging");
 }
 
 void Engine::endLogging() {
-    ENGINE_INFO("Stopped AMORA logging");
+    AMORA_INFO("Stopped AMORA logging");
     logger->flush_log();
 }
 
 Engine::Engine(GLFWwindow* window) {
+    ////////////////////////////////////
+    // CREATING VULKAN MEMBER OBJECTS //
+    ////////////////////////////////////
+
     // Creating the Vulkan context (instance, etc.)
     mContext = std::make_unique<VulkanContext>();
-
+    // With the context set up, we create a surface from the window where we may render.
     mRenderSurface = std::make_unique<RenderSurface>(*mContext, window);
-
+    // Surface ready. We can set up the physical device (GPU) and the logical device
+    // based on our application needs.
     mContext->setupDevices(mRenderSurface->getSurface());
-
+    // Convenience for other constructors.
     const vk::raii::Device& device = mContext->getDevice();
 
     mGraphicsDispatcher = std::make_unique<CommandDispatcher>(device, mContext->getGraphicsIndex());
     mComputeDispatcher = std::make_unique<CommandDispatcher>(device, mContext->getComputeIndex());
 
     mSwapChain = std::make_unique<SwapChain>(*mContext, *mRenderSurface);
+    
+    mDescriptorManager = std::make_unique<DescriptorLayoutManager>(*mContext);
 
     mPresentCompleteSemaphores = std::make_unique<SemaphoreGroup>(device, config::rendering::MAX_FRAMES_IN_FLIGHT);
     mRenderCompleteSemaphores = std::make_unique<SemaphoreGroup>(device, static_cast<uint32_t>(mSwapChain->getImages().size()));
     mDrawFences = std::make_unique<FenceGroup>(device, config::rendering::MAX_FRAMES_IN_FLIGHT);
 
-    std::map<ShaderStage, std::shared_ptr<Shader> > shaders {
-        {VERTEX,    std::make_shared<Shader>(device, "shader_vert")},
-        {FRAGMENT,  std::make_shared<Shader>(device, "shader_frag")}
-    };
+    /////////////////////////////////////
+    // CREATING DESCRIPTOR SET LAYOUTS //
+    /////////////////////////////////////
 
-    mPipeline = std::make_unique<graphics::GraphicsPipeline>(device, shaders, nullptr, *mSwapChain);
+    // Set 0 - Per-frame state: Camera matrices, etc.
+    mDescriptorManager->addLayout({
+        .setIndex = 0,
+        .bindings = {
+            // Camera UBO
+            BindingInfo { .bindingIndex = 0, .bindingType = vk::DescriptorType::eUniformBuffer, .stageFlags = vk::ShaderStageFlagBits::eAllGraphics }
+        }
+    });
+
+    // Set 3 - Per-object state: Model matrices, etc.
+
 }
 
 ImGuiEngineData Engine::beginInterfaceBackend(GLFWwindow *window) const {
@@ -81,7 +98,10 @@ ImGuiEngineData Engine::beginInterfaceBackend(GLFWwindow *window) const {
         .PipelineCache = nullptr,
         .PipelineInfoMain = {
             .MSAASamples = VK_SAMPLE_COUNT_1_BIT,
-            .PipelineRenderingCreateInfo = mPipeline->getRenderingCreateInfo()
+            .PipelineRenderingCreateInfo = vk::PipelineRenderingCreateInfo {
+                .colorAttachmentCount = 1,
+                .pColorAttachmentFormats = &mSwapChain->getSurfaceFormat().format
+            }
         },
         .UseDynamicRendering = true
     };
@@ -134,7 +154,42 @@ void transitionImageLayout(
     dispatcher.getCommandBuffer(frameIndex).pipelineBarrier2(dependency_info);
 }
 
-void Engine::recreateSwapChain() const { mSwapChain->recreate(); }
+void Engine::invalidateSurfaceSize(uint32_t width, uint32_t height) const {
+    mSwapChain->recreate();
+    for (auto& scene : mLoadedScenes) {
+        scene->updateSurfaceSize(width, height);
+    }
+}
+
+void Engine::loadScene(scene::Scene& scene, const bool setActive) {
+    auto [w, h] = mRenderSurface->getCurrentFramebufferSize();
+    scene.setupCameraMatrices(w, h);
+    scene.setupVulkan(*mContext, *mSwapChain, *mDescriptorManager);
+    mLoadedScenes.push_back(&scene);
+    if (setActive) {
+        changeActiveScene(scene);
+    }
+}
+
+void Engine::unloadScene(scene::Scene& scene) {
+    if (vector_utils::contains(mLoadedScenes, &scene)) {
+        mLoadedScenes.erase(mLoadedScenes.begin() + vector_utils::indexOf(mLoadedScenes, &scene));
+    }
+}
+
+scene::Scene* Engine::changeActiveScene(scene::Scene& newScene) {
+    if (std::ranges::find(mLoadedScenes, &newScene) == mLoadedScenes.end()) {
+        throw std::invalid_argument("New scene must have been loaded before using!");
+    }
+
+    if (mActiveScene != nullptr) {
+        scene::Scene* oldScene = mActiveScene;
+        mActiveScene = &newScene;
+        return oldScene;
+    }
+    mActiveScene = &newScene;
+    return nullptr;
+}
 
 void Engine::beginFrame() {
     auto& device = mContext->getDevice();
@@ -214,8 +269,10 @@ void Engine::endFrame() {
     auto& drawFence = (*mDrawFences)[mFrameIndex];
     auto& presentCompleteSemaphore = (*mPresentCompleteSemaphores)[mFrameIndex];
 
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline->get());
-    commandBuffer.draw(3, 1, 0, 0);
+    mActiveScene->recordScene(mGraphicsDispatcher->getCommandBuffer(mFrameIndex), mFrameIndex);
+
+    //commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline->get());
+    //commandBuffer.draw(3, 1, 0, 0);
 
     ImGui_ImplVulkan_RenderDrawData(drawData, *commandBuffer);
 
