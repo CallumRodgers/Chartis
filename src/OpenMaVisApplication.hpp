@@ -50,28 +50,6 @@ namespace mavis {
         quill::Backend::stop();
     }
 
-    static GLFWwindow* createWindow() {
-        if (!glfwInit()) {
-            throw std::runtime_error("GLFW: Failed to initialize GLFW.");
-        }
-        if (!glfwVulkanSupported()) {
-            throw std::runtime_error("GLFW: Vulkan support not available.");
-        }
-
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
-        const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        const int windowWidth = static_cast<int>(videoMode->width * 0.7);
-        const int windowHeight = static_cast<int>(videoMode->height * 0.8);
-
-        GLFWwindow* win = glfwCreateWindow(windowWidth, windowHeight, "OpenMaVis", NULL, NULL);
-        glfwSetCursor(win, glfwCreateStandardCursor(GLFW_ARROW_CURSOR));
-
-        MAVIS_INFO("Created GLFW window");
-        return win;
-    }
-
     /** Static callback functions for user input that are directly invoked by GLFW. */
     namespace callbacks {
         static void onFramebufferResizeCallback (GLFWwindow* window, int width, int height);
@@ -83,22 +61,32 @@ namespace mavis {
 
     class OpenMaVisApplication {
     public:
-        OpenMaVisApplication(int argc, char** argv);
+        inline static GLFWcursor* CURSOR_ARROW = nullptr;
+        inline static GLFWcursor* CURSOR_ROTATE = nullptr;
+        inline static GLFWcursor* CURSOR_CROSSHAIR = nullptr;
+        inline static GLFWcursor* CURSOR_SCALE_HORIZONTAL = nullptr;
+        inline static GLFWcursor* CURSOR_SCALE_VERTICAL = nullptr;
+        inline static GLFWcursor* CURSOR_SHEAR_HORIZONTAL = nullptr;
+        inline static GLFWcursor* CURSOR_SHEAR_VERTICAL = nullptr;
 
         GLFWwindow* mWindow;
 
         EventHandler2D mEventHandler2D;
         EventHandler3D mEventHandler3D;
 
+        OpenMaVisApplication(int argc, char** argv);
+
         void run();
 
-        void invalidateSurface() { mSurfaceInvalidated = true; };
+        void invalidateSurface() { mSurfaceInvalidated = true; }
+        void invalidateRender() { mRenderInvalidated = true; }
+
         void toggleFullscreenMode();
-
-
 
     private:
         bool mSurfaceInvalidated = false;
+
+        bool mRenderInvalidated = false;
 
         int mLastWindowX = 0;
         int mLastWindowY = 0;
@@ -108,7 +96,11 @@ namespace mavis {
         /// Resizing operation doesn't need more than 30 FPS.
         int mMinResizeDelay = static_cast<int>(1.0f / 30.0f);
 
+        static GLFWwindow* createWindow();
+
         void mainLoop();
+
+        static void createCursors(GLFWwindow* window);
     };
 }
 

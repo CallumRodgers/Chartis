@@ -21,17 +21,16 @@ namespace amora {
     class DescriptorSetData;
 }
 
-namespace amora::graphics {
-    class GraphicsPipeline;
-}
-
 namespace vk::raii {
     class CommandBuffer;
 }
 
 namespace amora::scene {
 
-    constexpr m_float PROJECTION_SCALE = 1.f;
+    class Background;
+    class CoordinateGrid;
+
+    constexpr m_float PROJECTION_SCALE = 5.f;
 
     constexpr auto ORIGIN = m_vec3(0.f, 0.f, 0.f);
     constexpr auto X_AXIS = m_vec3(1.f, 0.f, 0.f);
@@ -40,19 +39,27 @@ namespace amora::scene {
 
     class Scene {
     public:
-        struct CameraBufferObject {
+        struct CameraUBO {
             m_mat4x4 projectionMatrix;
             m_mat4x4 viewMatrix;
+            m_mat4x4 inverseMatrix;
         };
 
         virtual ~Scene();
 
-        void translate(const m_vec3 a)                      { mCameraUBO.viewMatrix = glm::translate(mCameraUBO.viewMatrix, a); }
+        void translate(const m_vec3 a) { mCameraUBO.viewMatrix = glm::translate(mCameraUBO.viewMatrix, a); }
         void rotate(const m_vec3 axis, const m_float angle) { mCameraUBO.viewMatrix = glm::rotate(mCameraUBO.viewMatrix, angle, axis); }
-        void scale(const m_vec3 s)                          { mCameraUBO.viewMatrix = glm::scale(mCameraUBO.viewMatrix, s); }
+        void scale(const m_vec3 s) { mCameraUBO.viewMatrix = glm::scale(mCameraUBO.viewMatrix, s); }
         void shear(const m_vec3 p, const m_vec2 lX, const m_vec2 lY, const m_vec2 lZ) {
             mCameraUBO.viewMatrix = glm::shear(mCameraUBO.viewMatrix, p, lX, lY, lZ);
         }
+
+        /**
+         * Ensures that the view matrix is "within bounds" like the [min, max] scale range,
+         * and within the maximum shearing limit, etc. It also computes the total inverse transformation
+         * matrix for the current proj * view.
+         */
+        virtual void invalidateCameraMatrices() = 0;
 
         virtual void setupCameraMatrices(uint32_t surfaceWidth, uint32_t surfaceHeight) = 0;
         virtual void updateSurfaceSize(uint32_t surfaceWidth, uint32_t surfaceHeight) = 0;
@@ -60,28 +67,27 @@ namespace amora::scene {
         virtual void setupVulkan(const VulkanContext& context, const SwapChain& swapChain, DescriptorLayoutManager& layoutManager) = 0;
         virtual void recordScene(const vk::raii::CommandBuffer& commandBuffer, uint32_t frameIndex) const = 0;
 
-        CameraBufferObject mCameraUBO;
+        CameraUBO mCameraUBO;
 
     protected:
         Scene() = default;
-
 
         uint32_t surfaceWidth;
         uint32_t surfaceHeight;
 
         std::string mSceneName;
 
-        std::unique_ptr<graphics::GraphicsPipeline> mBackgroundPipeline;
-        std::unique_ptr<graphics::GraphicsPipeline> mAxesPipeline;
+        std::unique_ptr<Background> mBackground;
+        std::unique_ptr<CoordinateGrid> mCoordinateGrid;
+
         std::unique_ptr<DescriptorAllocator> mDescriptorAllocator;
 
         ///////////////////////////////////
         // PER-FRAME IN FLIGHT RESOURCES //
         ///////////////////////////////////
 
-        FrameGroup<std::unique_ptr<UniformBuffer<CameraBufferObject>>> mCameraBuffers;
+        FrameGroup<std::unique_ptr<UniformBuffer<CameraUBO>>> mCameraBuffers;
         FrameGroup<std::unique_ptr<DescriptorSetData>> mDescriptorSets;
-
     };
 }
 

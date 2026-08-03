@@ -72,7 +72,7 @@ Engine::Engine(GLFWwindow* window) {
         .setIndex = 0,
         .bindings = {
             // Camera UBO
-            BindingInfo { .bindingIndex = 0, .bindingType = vk::DescriptorType::eUniformBuffer, .stageFlags = vk::ShaderStageFlagBits::eAllGraphics }
+            BindingInfo { .bindingIndex = 0, .bindingType = vk::DescriptorType::eUniformBuffer, .stageFlags = vk::ShaderStageFlagBits::eVertex }
         }
     });
 

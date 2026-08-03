@@ -26,6 +26,14 @@ namespace amora::vector_utils {
         }
         return -1;
     }
+
+    template <typename K, typename T> static std::vector<T> fromUnorderedMapValues(const std::unordered_map<K, T>& map) {
+        std::vector<T> vector;
+        for (const std::pair<K, T>& pair : map) {
+            vector.push_back(pair.second);
+        }
+        return vector;
+    }
 }
 
 #endif //OPENMAVIS_VECTOR_UTILS_HPP

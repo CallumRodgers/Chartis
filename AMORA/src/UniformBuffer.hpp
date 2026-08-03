@@ -43,7 +43,7 @@ namespace amora {
     };
 
     // Stating which templates we want to compile against, otherwise we get linker errors.
-    template class UniformBuffer<scene::Scene::CameraBufferObject>;
+    template class UniformBuffer<scene::Scene::CameraUBO>;
 }
 
 #endif //OPENMAVIS_UNIFORMBUFFER_HPP

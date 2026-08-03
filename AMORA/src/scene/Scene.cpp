@@ -5,10 +5,11 @@
 
 #include "AMORA/Scene.hpp"
 
+#include "scene/Background.hpp"
+#include "scene/CoordinateGrid.hpp"
 #include "DescriptorAllocator.hpp"
 #include "DescriptorSetData.hpp"
 #include "UniformBuffer.hpp"
-#include "graphics/GraphicsPipeline.hpp"
 
 using namespace amora::scene;
 

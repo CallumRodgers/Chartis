@@ -8,6 +8,9 @@
 #include <AMORA/algebra_types.hpp>
 #include <GLFW/glfw3.h>
 
+#include "../OpenMaVisApplication.hpp"
+
+#define APP_POINTER(window) static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window))
 #define SCREEN_TO_NDC(x, w) ((2.f * x / w) - 1.f)
 
 using namespace mavis;
@@ -15,41 +18,32 @@ using namespace mavis;
 void EventHandler2D::processKeyEvent(int key, int scancode, int action, int mods) {
     // Shift key bindings.
     if (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT) {
-        int cursorShape = 0;
         if (action == GLFW_PRESS) {
-            cursorShape = GLFW_CROSSHAIR_CURSOR;
             mIsShiftPressed = true;
         } else if (action == GLFW_RELEASE) {
-            cursorShape = GLFW_ARROW_CURSOR;
             mIsShiftPressed = false;
         }
-        glfwSetCursor(mWindow, glfwCreateStandardCursor(cursorShape));
+        updateCursor();
         return;
     }
     // Control key bindings.
     if (key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL) {
-        int cursorShape = 0;
         if (action == GLFW_PRESS) {
-            cursorShape = GLFW_ARROW_CURSOR;
             mIsControlPressed = true;
         } else if (action == GLFW_RELEASE) {
-            cursorShape = GLFW_ARROW_CURSOR;
             mIsControlPressed = false;
         }
-        glfwSetCursor(mWindow, glfwCreateStandardCursor(cursorShape));
+        updateCursor();
         return;
     }
     // Alt key bindings.
     if (key == GLFW_KEY_LEFT_ALT || key == GLFW_KEY_RIGHT_ALT) {
-        int cursorShape = 0;
         if (action == GLFW_PRESS) {
-            cursorShape = GLFW_HRESIZE_CURSOR;
             mIsAltPressed = true;
         } else if (action == GLFW_RELEASE) {
-            cursorShape = GLFW_ARROW_CURSOR;
             mIsAltPressed = false;
         }
-        glfwSetCursor(mWindow, glfwCreateStandardCursor(cursorShape));
+        updateCursor();
         return;
     }
 }
@@ -67,7 +61,19 @@ void EventHandler2D::processMouseMotionEvent(double xpos, double ypos) {
         const m_float x     = SCREEN_TO_NDC(xpos, mSurfaceWidth);
         const m_float y     = SCREEN_TO_NDC(ypos, mSurfaceHeight);
 
-        if (mIsControlPressed) {
+        if (mIsControlPressed && mIsAltPressed) {
+            // SHEARING
+            constexpr m_vec2 noShear(0.f, 0.f);
+            if (mIsShiftPressed) {
+                // SHEARING Y
+                const m_vec2 shearY(y - lastY, 0.f);
+                mScene->shear(x * amora::scene::X_AXIS, noShear, shearY, noShear);
+            } else {
+                // SHEARING X
+                const m_vec2 shearX(x - lastX, 0.f);
+                mScene->shear(m_vec3(y, 0.f, 0.f), shearX, noShear, noShear);
+            }
+        } else if (mIsControlPressed) {
             // ROTATING
             const m_float delta = std::atan2(y, x) - std::atan2(lastY, lastX);
 
@@ -87,21 +93,34 @@ void EventHandler2D::processMouseMotionEvent(double xpos, double ypos) {
             view[3][0] = newCameraPos[0];
             view[3][1] = newCameraPos[1];
         } else if (mIsAltPressed) {
-            // SHEARING
-            constexpr m_vec2 noShear(0.f, 0.f);
+            // SCALING
+            const m_mat4x4& inverseTransform = mScene->mCameraUBO.inverseMatrix;
+
+            auto cursorPos     = m_vec4(x, y, 0.f, 1.f);
+            auto cursorLastPos = m_vec4(lastX, lastY, 0.f, 1.f);
+
+            cursorPos     = inverseTransform * cursorPos;
+            cursorLastPos = inverseTransform * cursorLastPos;
+
             if (mIsShiftPressed) {
-                // SHEARING Y
-                const m_vec2 shearY(y - lastY, 0.f);
-                mScene->shear(x * amora::scene::X_AXIS, noShear, shearY, noShear);
+                // SCALING Y
+                mScene->scale(m_vec3(1.f, cursorPos[1] / cursorLastPos[1], 1.f));
             } else {
-                // SHEARING X
-                const m_vec2 shearX(x - lastX, 0.f);
-                mScene->shear(m_vec3(y, 0.f, 0.f), shearX, noShear, noShear);
+                // SCALING X
+                mScene->scale(m_vec3(cursorPos[0] / cursorLastPos[0], 1.f, 1.f));
             }
         } else {
-            // TRANSLATING
-            mScene->translate(m_vec3(premultiply(m_vec2(x - lastX, y - lastY)), 0.0));
+            if (mIsShiftPressed) {
+                // MULTISELECT
+
+            } else {
+                // TRANSLATING
+                mScene->translate(m_vec3(premultiply(m_vec2(x - lastX, y - lastY)), 0.0));
+            }
         }
+
+        mScene->invalidateCameraMatrices();
+        APP_POINTER(mWindow)->invalidateRender();
     }
 
     mLastX = xpos;
@@ -115,8 +134,6 @@ void EventHandler2D::processMouseButtonEvent(int button, int action, int mods) {
             glfwGetCursorPos(mWindow, &mLastX, &mLastY);
         } else if (action == GLFW_RELEASE) {
             mIsLeftMouseButtonPressed = false;
-            mLastX = POSITION_UNSET;
-            mLastY = POSITION_UNSET;
         }
     } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (action == GLFW_PRESS) {
@@ -144,4 +161,38 @@ void EventHandler2D::processScrollEvent(double xoffset, double yoffset) {
     const m_vec2 cursorPosOffset = glm::inverse(m_mat2x2(mScene->mCameraUBO.projectionMatrix)) * m_vec2(x, y) * (1.f - s);
     view[3][0] += cursorPosOffset[0];
     view[3][1] += cursorPosOffset[1];
+
+    mScene->invalidateCameraMatrices();
+    APP_POINTER(mWindow)->invalidateRender();
+}
+
+void EventHandler2D::updateCursor() {
+    if (!mIsAltPressed && !mIsControlPressed) {
+        if (mIsShiftPressed) {
+            // Only shift is pressed, so multiselect is enabled.
+            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_CROSSHAIR);
+        } else {
+            // Nothing is pressed: default cursor.
+            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_ARROW);
+        }
+    } else if (mIsControlPressed && !mIsAltPressed) {
+        // Only control pressed: rotate. Shift makes no difference.
+        glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_ROTATE);
+    } else if (mIsAltPressed && !mIsControlPressed) { // First condition is redundant but kept for clarity.
+        if (mIsShiftPressed) {
+            // ALT + SHIFT: Scale vertical.
+            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_SCALE_VERTICAL);
+        } else {
+            // Only ALT: Scale horizontal.
+            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_SCALE_HORIZONTAL);
+        }
+    } else { // Both ALT and CONTROL are pressed.
+        if (mIsShiftPressed) {
+            // CONTROL + ALT + SHIFT: Shear vertical.
+            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_SHEAR_VERTICAL);
+        } else {
+            // Only ALT: Shear horizontal.
+            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_SHEAR_HORIZONTAL);
+        }
+    }
 }

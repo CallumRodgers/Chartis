@@ -19,6 +19,8 @@ find_package(Vulkan REQUIRED)
 # Compiling third party libraries.
 # =========================================
 
+###########################################
+# Quill
 include(FetchContent)
 
 # Quill
@@ -149,6 +151,10 @@ target_sources(AMORA
         # Scene classes implementations
         AMORA/src/scene/Scene.cpp
         AMORA/src/scene/Scene2D.cpp
+        AMORA/src/scene/Background.hpp
+        AMORA/src/scene/Background.cpp
+        AMORA/src/scene/CoordinateGrid.hpp
+        AMORA/src/scene/CoordinateGrid.cpp
         AMORA/src/scene/objects/Object2D.cpp
         #AMORA/src/scene/Scene3D.cpp
 
@@ -211,6 +217,9 @@ set(SOURCES src/main.cpp
 
         # Headers
         src/OpenMaVisApplication.hpp
+
+        # Lib implementations
+        libs/stb_image/stb_impl.cpp
 )
 
 # =========================================
@@ -221,10 +230,10 @@ add_executable(OpenMaVis ${SOURCES})
 add_dependencies(OpenMaVis GraphicsShaders)
 
 target_link_libraries(OpenMaVis PRIVATE AMORA glfw quill::quill)
-target_include_directories(OpenMaVis PRIVATE include libs/imgui AMORA/include)
+target_include_directories(OpenMaVis PRIVATE include libs/imgui libs/stb_image AMORA/include)
 
-add_custom_command(TARGET OpenMaVis POST_BUILD
+add_custom_command(TARGET OpenMaVis PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/res"
-        "${CMAKE_BINARY_DIR}/res"
+        $<TARGET_FILE_DIR:OpenMaVis>/res
 )

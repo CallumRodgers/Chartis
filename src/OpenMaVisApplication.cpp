@@ -9,8 +9,79 @@
 
 #include <AMORA/Engine.hpp>
 #include <AMORA/Scene2D.hpp>
+#include "file_utils.hpp"
 
 using namespace mavis;
+
+void OpenMaVisApplication::createCursors(GLFWwindow* window) {
+    float xscale, yscale;
+
+    glfwGetWindowContentScale(window, &xscale, &yscale);
+
+    GLFWimage cursorImage;
+    int size;
+    int scaleFactor;
+
+    if (xscale >= 1.5f && yscale >= 1.5f) {
+        size = 64;
+        scaleFactor = 2;
+    } else {
+        size = 32;
+        scaleFactor = 1;
+    }
+
+    cursorImage.width = size;
+    cursorImage.height = size;
+
+    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/arrow" + std::to_string(size) + ".png"));
+    CURSOR_ARROW = glfwCreateCursor(&cursorImage, 3 * scaleFactor, 3 * scaleFactor);
+    file_utils::freeImage(cursorImage.pixels);
+
+    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/rotate" + std::to_string(size) + ".png"));
+    CURSOR_ROTATE = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
+    file_utils::freeImage(cursorImage.pixels);
+
+    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/crosshair" + std::to_string(size) + ".png"));
+    CURSOR_CROSSHAIR = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
+    file_utils::freeImage(cursorImage.pixels);
+
+    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/scale_horizontal" + std::to_string(size) + ".png"));
+    CURSOR_SCALE_HORIZONTAL = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
+    file_utils::freeImage(cursorImage.pixels);
+
+    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/scale_vertical" + std::to_string(size) + ".png"));
+    CURSOR_SCALE_VERTICAL = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
+    file_utils::freeImage(cursorImage.pixels);
+
+    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/shear_horizontal" + std::to_string(size) + ".png"));
+    CURSOR_SHEAR_HORIZONTAL = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
+    file_utils::freeImage(cursorImage.pixels);
+
+    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/shear_vertical" + std::to_string(size) + ".png"));
+    CURSOR_SHEAR_VERTICAL = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
+    file_utils::freeImage(cursorImage.pixels);
+}
+
+GLFWwindow* OpenMaVisApplication::createWindow() {
+    if (!glfwInit()) {
+        throw std::runtime_error("GLFW: Failed to initialize GLFW.");
+    }
+    if (!glfwVulkanSupported()) {
+        throw std::runtime_error("GLFW: Vulkan support not available.");
+    }
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
+    const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    const int windowWidth = static_cast<int>(videoMode->width * 0.7);
+    const int windowHeight = static_cast<int>(videoMode->height * 0.8);
+
+    GLFWwindow* win = glfwCreateWindow(windowWidth, windowHeight, "OpenMaVis", NULL, NULL);
+
+    MAVIS_INFO("Created GLFW window");
+    return win;
+}
 
 OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv)
     : mWindow(createWindow()),
@@ -34,6 +105,8 @@ OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv)
     glfwSetCursorPosCallback(mWindow, callbacks::onMouseMotionEventCallback);
     glfwSetMouseButtonCallback(mWindow, callbacks::onMouseButtonEventCallback);
     glfwSetScrollCallback(mWindow, callbacks::onScrollEventCallback);
+
+    createCursors(mWindow);
 }
 
 void OpenMaVisApplication::toggleFullscreenMode() {
@@ -84,6 +157,8 @@ void OpenMaVisApplication::mainLoop() {
     constexpr int maxContinuousFrames = 5;
     int frameIndex = 0;
     bool waitEvents = false;
+    // Obviously we want to render the first frame.
+    mRenderInvalidated = true;
 
     while (!glfwWindowShouldClose(mWindow)) {
         //////////////////////
@@ -92,7 +167,9 @@ void OpenMaVisApplication::mainLoop() {
 
         if (waitEvents) {
             glfwWaitEvents();
-            waitEvents = false;
+            if (mRenderInvalidated) {
+                waitEvents = false;
+            }
         } else {
             glfwPollEvents();
         }
@@ -109,18 +186,22 @@ void OpenMaVisApplication::mainLoop() {
         // RENDERING SCENE AND UI //
         ////////////////////////////
 
-        // Sets everything up for a new frame to be drawn.
-        engine.beginFrame();
-        // Not using the UI for now in this branch.
-        //UserInterface::layout();
-        // Submits the draw commands to the queue and presents the image.
-        engine.endFrame();
+        if (mRenderInvalidated) {
+            // Sets everything up for a new frame to be drawn.
+            engine.beginFrame();
+            // Not using the UI for now in this branch.
+            //UserInterface::layout();
+            // Submits the draw commands to the queue and presents the image.
+            engine.endFrame();
 
-        // Updating frame variables and checking if we should idle the application.
-        frameIndex++;
-        if (frameIndex == maxContinuousFrames) {
-            frameIndex = 0;
-            waitEvents = true;
+            // Updating frame variables and checking if we should idle the application.
+            frameIndex++;
+            if (frameIndex == maxContinuousFrames) {
+                frameIndex = 0;
+                waitEvents = true;
+            }
+
+            mRenderInvalidated = false;
         }
     } // Main loop.
 

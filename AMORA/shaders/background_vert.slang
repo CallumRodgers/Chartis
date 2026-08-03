@@ -1,8 +1,3 @@
-static float2 positions[3] = float2[](
-    float2(-1.0, 3.0),
-    float2(-1.0, -1.0),
-    float2(3.0, -1.0)
-);
 
 struct VertexOutput {
     float4 sv_position : SV_Position;
@@ -10,7 +5,13 @@ struct VertexOutput {
 };
 
 [shader("vertex")]
-VertexOutput vertMain(uint vid : SV_VertexID) {
+VertexOutput vertMain(uint vid: SV_VertexID) {
+    static const float2 positions[3] = float2[](
+        float2(-1.0, 3.0),
+        float2(-1.0, -1.0),
+        float2(3.0, -1.0)
+    );
+
     VertexOutput output;
     output.sv_position = float4(positions[vid], 0.0, 1.0);
     output.uv = (positions[vid] + 1.0) / 2.0;

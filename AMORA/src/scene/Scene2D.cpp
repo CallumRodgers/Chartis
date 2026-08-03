@@ -8,10 +8,13 @@
 #include <glm/glm.hpp>
 #include <vulkan/vulkan_raii.hpp>
 
+#include "Background.hpp"
+#include "CoordinateGrid.hpp"
 #include "DescriptorAllocator.hpp"
 #include "DescriptorLayoutManager.hpp"
 #include "DescriptorSetData.hpp"
 #include "UniformBuffer.hpp"
+#include "AMORA/vector_utils.hpp"
 #include "graphics/GraphicsPipeline.hpp"
 
 using namespace amora::scene;
@@ -41,50 +44,40 @@ void Scene2D::updateSurfaceSize(uint32_t surfaceWidth, uint32_t surfaceHeight) {
             -1.f, 1.f
         );
     }
-
+    invalidateCameraMatrices();
 }
 
 void Scene2D::setupVulkan(const VulkanContext& context, const SwapChain& swapChain, DescriptorLayoutManager& layoutManager) {
 
     const vk::raii::Device& device = context.getDevice();
-    const std::vector requiredLayouts = {
-        *layoutManager.fetchLayout(0)
-    };
 
     mDescriptorAllocator = std::make_unique<DescriptorAllocator>(context);
+    std::unordered_map<uint32_t, vk::DescriptorSetLayout> totalRequiredLayouts;
 
-    //////////////////////////
-    // SETTING UP PIPELINES //
-    //////////////////////////
+    //////////////////////////////
+    // SETTING UP SCENE OBJECTS //
+    //////////////////////////////
 
-    graphics::GraphicsPipeline::GraphicsPipelineCreateInfo backgroundPipelineCreateInfo {
-        .shaderMap = {
-            {Vertex, std::make_shared<Shader>(device, "background_vert")},
-            {Fragment, std::make_shared<Shader>(device, "background_frag")}
-        },
-        .previousPipeline = nullptr,
-        .surfaceFormat = swapChain.getSurfaceFormat()
-    };
-    mBackgroundPipeline = std::make_unique<graphics::GraphicsPipeline>(device, backgroundPipelineCreateInfo);
+    mBackground = std::make_unique<Background>(device, swapChain.getSurfaceFormat());
 
-    graphics::GraphicsPipeline::GraphicsPipelineCreateInfo axesPipelineCreateInfo {
-        .shaderMap = {
-            {Vertex, std::make_shared<Shader>(device, "axis_vert")},
-            {Fragment, std::make_shared<Shader>(device, "axis_frag")}
-        },
-        .previousPipeline = nullptr,
-        .surfaceFormat = swapChain.getSurfaceFormat(),
-        .requestedLayouts = requiredLayouts
-    };
-    mAxesPipeline = std::make_unique<graphics::GraphicsPipeline>(device, axesPipelineCreateInfo);
+    std::vector<vk::DescriptorSetLayout> requiredCoordinateGridLayouts;
+    for (const uint32_t setIndex : CoordinateGrid::REQUIRED_DESCRIPTOR_SETS) {
+        vk::DescriptorSetLayout layout = *layoutManager.fetchLayout(setIndex);
+
+        requiredCoordinateGridLayouts.push_back(layout);
+        if (!totalRequiredLayouts.contains(setIndex)) {
+            totalRequiredLayouts.emplace(setIndex, layout);
+        }
+    }
+    mCoordinateGrid = std::make_unique<CoordinateGrid>(device, swapChain.getSurfaceFormat(), requiredCoordinateGridLayouts);
 
     //////////////////////////////////////
     // SETTING UP FRAME GROUP RESOURCES //
     //////////////////////////////////////
 
     for (uint32_t i = 0; i < config::rendering::MAX_FRAMES_IN_FLIGHT; i++) {
-        mCameraBuffers[i] = std::make_unique<UniformBuffer<CameraBufferObject>>(context);
-        mDescriptorSets[i] = std::make_unique<DescriptorSetData>(requiredLayouts, *mDescriptorAllocator);
+        mCameraBuffers[i] = std::make_unique<UniformBuffer<CameraUBO>>(context);
+        mDescriptorSets[i] = std::make_unique<DescriptorSetData>(vector_utils::fromUnorderedMapValues(totalRequiredLayouts), *mDescriptorAllocator);
 
         // Linking buffer to set
         auto bufferInfo = mCameraBuffers[i]->getDescriptorBufferInfo();
@@ -93,31 +86,26 @@ void Scene2D::setupVulkan(const VulkanContext& context, const SwapChain& swapCha
 }
 
 void Scene2D::recordScene(const vk::raii::CommandBuffer& commandBuffer, const uint32_t frameIndex) const {
+    ///////////////////////
+    // SCENE PREPARATION //
+    ///////////////////////
 
     mCameraBuffers[frameIndex]->uploadData(mCameraUBO);
 
-    const vk::raii::DescriptorSet& set = mDescriptorSets[frameIndex]->getDescriptorSets()[0];
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mAxesPipeline->getLayout(), 0, *set, nullptr);
+    ///////////////////
+    // SCENE DRAWING //
+    ///////////////////
 
-    //////////////////////////
-    // RECORDING BACKGROUND //
-    //////////////////////////
-
-    if (mBackgroundPipeline != nullptr) {
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mBackgroundPipeline->get());
-        commandBuffer.draw(3, 1, 0, 0);
-    }
-
-    /////////////////////////////
-    // RECORDING AXES AND GRID //
-    /////////////////////////////
-
-    if (mAxesPipeline != nullptr) {
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mAxesPipeline->get());
-        commandBuffer.draw(3, 1, 0, 0);
-    }
+    // Recording background.
+    if (mBackground != nullptr) { mBackground->draw(commandBuffer); }
+    // Recording axes and grid.
+    if (mCoordinateGrid != nullptr) { mCoordinateGrid->draw(commandBuffer, *mDescriptorSets[frameIndex]); }
 
     for (auto pair : objects) {
 
     }
+}
+
+void Scene2D::invalidateCameraMatrices() {
+    mCameraUBO.inverseMatrix = glm::inverse(mCameraUBO.projectionMatrix * mCameraUBO.viewMatrix);
 }

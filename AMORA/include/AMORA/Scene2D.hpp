@@ -24,6 +24,8 @@ namespace amora::scene {
             objects.erase(objId);
         }
 
+        void invalidateCameraMatrices() override;
+
         void setupCameraMatrices(uint32_t surfaceWidth, uint32_t surfaceHeight) override;
         void updateSurfaceSize(uint32_t surfaceWidth, uint32_t surfaceHeight) override;
 
@@ -32,6 +34,8 @@ namespace amora::scene {
 
     private:
         std::map<uint32_t, Object2D> objects;
+
+
     };
 }
 

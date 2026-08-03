@@ -52,6 +52,8 @@ namespace mavis {
             const auto view = m_mat2x2(mScene->mCameraUBO.viewMatrix);
             return glm::inverse(proj * view) * vec;
         }
+
+        void updateCursor();
     };
 }
 
