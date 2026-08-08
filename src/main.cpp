@@ -16,6 +16,7 @@ int main(const int argc, char *argv[]) {
     try {
         mavis::OpenMaVisApplication app(argc, argv);
         app.run();
+        app.terminate();
     } catch (std::exception& e) {
         MAVIS_ERROR("Exception occurred during runtime: {}", e.what());
         mavis::endLogging();

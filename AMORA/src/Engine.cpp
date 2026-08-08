@@ -42,23 +42,33 @@ Engine::Engine(GLFWwindow* window) {
     // CREATING VULKAN MEMBER OBJECTS //
     ////////////////////////////////////
 
+    AMORA_INFO("Begin AMORA Engine setup");
+
     // Creating the Vulkan context (instance, etc.)
+    AMORA_INFO("Creating Vulkan context...");
     mContext = std::make_unique<VulkanContext>();
+
     // With the context set up, we create a surface from the window where we may render.
+    AMORA_INFO("Creating rendering surface from GLFW...");
     mRenderSurface = std::make_unique<RenderSurface>(*mContext, window);
+    AMORA_INFO("Setting up physical and logical devices...");
     // Surface ready. We can set up the physical device (GPU) and the logical device
     // based on our application needs.
     mContext->setupDevices(mRenderSurface->getSurface());
     // Convenience for other constructors.
     const vk::raii::Device& device = mContext->getDevice();
 
+    AMORA_INFO("Creating command dispatchers...");
     mGraphicsDispatcher = std::make_unique<CommandDispatcher>(device, mContext->getGraphicsIndex());
     mComputeDispatcher = std::make_unique<CommandDispatcher>(device, mContext->getComputeIndex());
 
+    AMORA_INFO("Creating swap chain...");
     mSwapChain = std::make_unique<SwapChain>(*mContext, *mRenderSurface);
-    
+
+    AMORA_INFO("Initialising DescriptorLayoutManager...");
     mDescriptorManager = std::make_unique<DescriptorLayoutManager>(*mContext);
 
+    AMORA_INFO("Creating synchronisation objects...");
     mPresentCompleteSemaphores = std::make_unique<SemaphoreGroup>(device, config::rendering::MAX_FRAMES_IN_FLIGHT);
     mRenderCompleteSemaphores = std::make_unique<SemaphoreGroup>(device, static_cast<uint32_t>(mSwapChain->getImages().size()));
     mDrawFences = std::make_unique<FenceGroup>(device, config::rendering::MAX_FRAMES_IN_FLIGHT);
@@ -66,6 +76,8 @@ Engine::Engine(GLFWwindow* window) {
     /////////////////////////////////////
     // CREATING DESCRIPTOR SET LAYOUTS //
     /////////////////////////////////////
+
+    AMORA_INFO("Creating descriptor set layouts...");
 
     // Set 0 - Per-frame state: Camera matrices, etc.
     mDescriptorManager->addLayout({
@@ -78,6 +90,8 @@ Engine::Engine(GLFWwindow* window) {
 
     // Set 3 - Per-object state: Model matrices, etc.
 
+
+    AMORA_INFO("AMORA Engine setup finished");
 }
 
 ImGuiEngineData Engine::beginInterfaceBackend(GLFWwindow *window) const {
@@ -270,9 +284,6 @@ void Engine::endFrame() {
     auto& presentCompleteSemaphore = (*mPresentCompleteSemaphores)[mFrameIndex];
 
     mActiveScene->recordScene(mGraphicsDispatcher->getCommandBuffer(mFrameIndex), mFrameIndex);
-
-    //commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline->get());
-    //commandBuffer.draw(3, 1, 0, 0);
 
     ImGui_ImplVulkan_RenderDrawData(drawData, *commandBuffer);
 

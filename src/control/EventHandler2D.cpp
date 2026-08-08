@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 
 #include "../OpenMaVisApplication.hpp"
+#include "AMORA/logger.hpp"
 
 #define APP_POINTER(window) static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window))
 #define SCREEN_TO_NDC(x, w) ((2.f * x / w) - 1.f)
@@ -46,6 +47,15 @@ void EventHandler2D::processKeyEvent(int key, int scancode, int action, int mods
         updateCursor();
         return;
     }
+
+    // R resets the view.
+    if (key == GLFW_KEY_R) {
+        if (action == GLFW_PRESS) {
+            mScene->mCamera.reset();
+            mScene->invalidateCameraMatrices();
+            APP_POINTER(mWindow)->invalidateRender();
+        }
+    }
 }
 
 void EventHandler2D::processMouseMotionEvent(double xpos, double ypos) {
@@ -63,21 +73,22 @@ void EventHandler2D::processMouseMotionEvent(double xpos, double ypos) {
 
         if (mIsControlPressed && mIsAltPressed) {
             // SHEARING
-            constexpr m_vec2 noShear(0.f, 0.f);
+            const auto inverse = m_mat2x2(mScene->mCameraUBO.inverseMatrix);
+            m_vec2 worldPos = inverse * m_vec2(x, y);
+            m_vec2 lastWorldPos = inverse * m_vec2(lastX, lastY);
+
             if (mIsShiftPressed) {
                 // SHEARING Y
-                const m_vec2 shearY(y - lastY, 0.f);
-                mScene->shear(x * amora::scene::X_AXIS, noShear, shearY, noShear);
+                mScene->shear(0.f, (worldPos[1] - lastWorldPos[1]) / (worldPos[0] - mScene->mCamera.position[0]));
             } else {
                 // SHEARING X
-                const m_vec2 shearX(x - lastX, 0.f);
-                mScene->shear(m_vec3(y, 0.f, 0.f), shearX, noShear, noShear);
+                mScene->shear((worldPos[0] - lastWorldPos[0]) / (worldPos[1] - mScene->mCamera.position[1]), 0.f);
             }
         } else if (mIsControlPressed) {
             // ROTATING
             const m_float delta = std::atan2(y, x) - std::atan2(lastY, lastX);
 
-            mScene->rotate(amora::scene::Z_AXIS, delta);
+            mScene->rotate(delta);
 
             // Rotating also the current camera position around (0,0) so that
             // the rotation appears to be "in-place", i.e., centred around the
@@ -87,11 +98,7 @@ void EventHandler2D::processMouseMotionEvent(double xpos, double ypos) {
             const m_float c = std::cos(delta);
             const auto rotationMatrix = m_mat2x2(c, s, -s, c);
 
-            m_mat4x4& view = mScene->mCameraUBO.viewMatrix;
-
-            m_vec2 newCameraPos = rotationMatrix * m_vec2(view[3]);
-            view[3][0] = newCameraPos[0];
-            view[3][1] = newCameraPos[1];
+            mScene->mCamera.position = rotationMatrix * mScene->mCamera.position;
         } else if (mIsAltPressed) {
             // SCALING
             const m_mat4x4& inverseTransform = mScene->mCameraUBO.inverseMatrix;
@@ -115,7 +122,7 @@ void EventHandler2D::processMouseMotionEvent(double xpos, double ypos) {
 
             } else {
                 // TRANSLATING
-                mScene->translate(m_vec3(premultiply(m_vec2(x - lastX, y - lastY)), 0.0));
+                mScene->translate(premultiply(m_vec2(x - lastX, y - lastY)));
             }
         }
 
@@ -146,27 +153,42 @@ void EventHandler2D::processMouseButtonEvent(int button, int action, int mods) {
 
 void EventHandler2D::processScrollEvent(double xoffset, double yoffset) {
     assert(mScene != nullptr);
-    // Exponential scaling.
-    const auto s = static_cast<m_float>(std::pow(1.15f, yoffset));
-    mScene->scale(m_vec3(s, s, s));
-
-    // Scaling the translation so it appears centered.
-    m_mat4x4& view = mScene->mCameraUBO.viewMatrix;
-    view[3][0] *= s;
-    view[3][1] *= s;
 
     const m_float x = SCREEN_TO_NDC(mLastX, mSurfaceWidth);
     const m_float y = SCREEN_TO_NDC(mLastY, mSurfaceHeight);
 
-    const m_vec2 cursorPosOffset = glm::inverse(m_mat2x2(mScene->mCameraUBO.projectionMatrix)) * m_vec2(x, y) * (1.f - s);
-    view[3][0] += cursorPosOffset[0];
-    view[3][1] += cursorPosOffset[1];
+    if (mIsControlPressed && !mIsAltPressed) {
+        // ROTATING
+        const m_float delta = yoffset / (2.f * std::numbers::pi);
+
+        mScene->rotate(delta);
+
+        // Rotating also the current camera position around (0,0) so that
+        // the rotation appears to be "in-place", i.e., centred around the
+        // centre of the screen.
+
+        const m_float s = std::sin(delta);
+        const m_float c = std::cos(delta);
+        const auto rotationMatrix = m_mat2x2(c, s, -s, c);
+
+        mScene->mCamera.position = rotationMatrix * (m_mat2x2(mScene->mCameraUBO.inverseMatrix) * m_vec2(x, y));
+    } else {
+        // Exponential scaling.
+        const auto s = static_cast<m_float>(std::pow(1.15f, yoffset));
+        mScene->zoom(s);
+
+        // Scaling the translation so it appears centered.
+        mScene->mCamera.position *= s;
+
+        const m_vec2 cursorPosOffset = glm::inverse(m_mat2x2(mScene->mCameraUBO.projectionMatrix)) * m_vec2(x, y) * (1.f - s);
+        mScene->mCamera.position += cursorPosOffset;
+    }
 
     mScene->invalidateCameraMatrices();
     APP_POINTER(mWindow)->invalidateRender();
 }
 
-void EventHandler2D::updateCursor() {
+void EventHandler2D::updateCursor() const {
     if (!mIsAltPressed && !mIsControlPressed) {
         if (mIsShiftPressed) {
             // Only shift is pressed, so multiselect is enabled.

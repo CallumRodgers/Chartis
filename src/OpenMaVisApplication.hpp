@@ -77,6 +77,7 @@ namespace mavis {
         OpenMaVisApplication(int argc, char** argv);
 
         void run();
+        void terminate();
 
         void invalidateSurface() { mSurfaceInvalidated = true; }
         void invalidateRender() { mRenderInvalidated = true; }
@@ -97,9 +98,6 @@ namespace mavis {
         int mMinResizeDelay = static_cast<int>(1.0f / 30.0f);
 
         static GLFWwindow* createWindow();
-
-        void mainLoop();
-
         static void createCursors(GLFWwindow* window);
     };
 }

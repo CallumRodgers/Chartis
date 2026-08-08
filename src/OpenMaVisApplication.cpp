@@ -126,14 +126,6 @@ void OpenMaVisApplication::toggleFullscreenMode() {
 }
 
 void OpenMaVisApplication::run() {
-
-    mainLoop();
-
-    glfwDestroyWindow(mWindow);
-    glfwTerminate();
-}
-
-void OpenMaVisApplication::mainLoop() {
     amora::Engine::startLogging();
     // By creating the Engine object here, it'll be automatically cleaned up
     // once it goes out of scope (i.e., the main loop exits).
@@ -180,6 +172,7 @@ void OpenMaVisApplication::mainLoop() {
             engine.invalidateSurfaceSize(w, h);
             mEventHandler2D.updateSurfaceSize(w, h);
             mSurfaceInvalidated = false;
+            mRenderInvalidated = true;
         }
 
         ////////////////////////////
@@ -207,6 +200,11 @@ void OpenMaVisApplication::mainLoop() {
 
     engine.waitIdle();
     engine.endInterfaceBackend();
+}
+
+void OpenMaVisApplication::terminate() {
+    glfwDestroyWindow(mWindow);
+    glfwTerminate();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

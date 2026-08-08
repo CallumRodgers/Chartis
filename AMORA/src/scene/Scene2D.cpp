@@ -24,7 +24,7 @@ Scene2D::Scene2D(const std::string &name) {
 }
 
 void Scene2D::setupCameraMatrices(const uint32_t surfaceWidth, const uint32_t surfaceHeight) {
-    mCameraUBO.viewMatrix = glm::lookAt(m_vec3(0.f, 0.f, 1.f), m_vec3(0.f, 0.f, 0.f), m_vec3(0.f, 1.f, 0.f));
+    mCameraUBO.viewMatrix = mCamera.getViewMatrix();
     updateSurfaceSize(surfaceWidth, surfaceHeight);
 }
 
@@ -107,5 +107,6 @@ void Scene2D::recordScene(const vk::raii::CommandBuffer& commandBuffer, const ui
 }
 
 void Scene2D::invalidateCameraMatrices() {
+    mCameraUBO.viewMatrix = mCamera.getViewMatrix();
     mCameraUBO.inverseMatrix = glm::inverse(mCameraUBO.projectionMatrix * mCameraUBO.viewMatrix);
 }

@@ -25,6 +25,9 @@ namespace vk::raii {
     class CommandBuffer;
 }
 
+/**
+ *
+ */
 namespace amora::scene {
 
     class Background;
@@ -33,10 +36,13 @@ namespace amora::scene {
     constexpr m_float PROJECTION_SCALE = 5.f;
 
     constexpr auto ORIGIN = m_vec3(0.f, 0.f, 0.f);
-    constexpr auto X_AXIS = m_vec3(1.f, 0.f, 0.f);
-    constexpr auto Y_AXIS = m_vec3(0.f, 1.f, 0.f);
-    constexpr auto Z_AXIS = m_vec3(0.f, 0.f, 1.f);
+    constexpr auto X_HAT = m_vec3(1.f, 0.f, 0.f);
+    constexpr auto Y_HAT = m_vec3(0.f, 1.f, 0.f);
+    constexpr auto Z_HAT = m_vec3(0.f, 0.f, 1.f);
 
+    /**
+     *
+     */
     class Scene {
     public:
         struct CameraUBO {
@@ -46,13 +52,6 @@ namespace amora::scene {
         };
 
         virtual ~Scene();
-
-        void translate(const m_vec3 a) { mCameraUBO.viewMatrix = glm::translate(mCameraUBO.viewMatrix, a); }
-        void rotate(const m_vec3 axis, const m_float angle) { mCameraUBO.viewMatrix = glm::rotate(mCameraUBO.viewMatrix, angle, axis); }
-        void scale(const m_vec3 s) { mCameraUBO.viewMatrix = glm::scale(mCameraUBO.viewMatrix, s); }
-        void shear(const m_vec3 p, const m_vec2 lX, const m_vec2 lY, const m_vec2 lZ) {
-            mCameraUBO.viewMatrix = glm::shear(mCameraUBO.viewMatrix, p, lX, lY, lZ);
-        }
 
         /**
          * Ensures that the view matrix is "within bounds" like the [min, max] scale range,

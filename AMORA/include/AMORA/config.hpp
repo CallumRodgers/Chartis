@@ -48,7 +48,7 @@ namespace amora::config {
         constexpr float GRAPHICS_QUEUE_PRIORITY = 0.6f;
         constexpr float COMPUTE_QUEUE_PRIORITY = 0.4f;
 
-        constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+        constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 3;
 
         constexpr uint32_t MAX_BINDING_SET_INDEX = 3;
         constexpr uint32_t MAX_BINDING_INDEX = 15;

@@ -48,12 +48,10 @@ namespace mavis {
         double mLastY = POSITION_UNSET;
 
         [[nodiscard]] m_vec2 premultiply(const m_vec2& vec) const {
-            const auto proj = m_mat2x2(mScene->mCameraUBO.projectionMatrix);
-            const auto view = m_mat2x2(mScene->mCameraUBO.viewMatrix);
-            return glm::inverse(proj * view) * vec;
+            return glm::inverse(m_mat2x2(mScene->mCameraUBO.projectionMatrix)) * vec;
         }
 
-        void updateCursor();
+        void updateCursor() const;
     };
 }
 
