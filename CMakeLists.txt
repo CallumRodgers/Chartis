@@ -4,32 +4,36 @@ project(OpenMaVis)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Finding required packages: GLFW and Vulkan.
-find_package(glfw3 REQUIRED)
-find_package(glm REQUIRED)
-find_package(slang REQUIRED)
-
 # =========================================
-# Vulkan setup.
+# THIRD-PARTY LIBRARIES
 # =========================================
 
 find_package(Vulkan REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(slang REQUIRED)
+find_package(glm REQUIRED)
 
-# =========================================
-# Compiling third party libraries.
-# =========================================
-
-###########################################
-# Quill
 include(FetchContent)
 
+# ===================
 # Quill
 FetchContent_Declare(
         quill
         GIT_REPOSITORY https://github.com/odygrd/quill.git
-        GIT_TAG        v12.0.0 # Use the specific version you want
+        GIT_TAG        v12.0.0
 )
 FetchContent_MakeAvailable(quill)
+# ===================
+
+# ===================
+# TOML++
+FetchContent_Declare(
+        tomlplusplus
+        GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+        GIT_TAG v3.4.0
+)
+FetchContent_MakeAvailable(tomlplusplus)
+# ===================
 
 # =========================================
 # Creating function for shader compilation.
@@ -92,8 +96,9 @@ set(GRAPHICS_SHADERS_SOURCES
         AMORA/shaders/shader_frag.slang
         AMORA/shaders/background_vert.slang
         AMORA/shaders/background_frag.slang
-        AMORA/shaders/axis_vert.slang
-        AMORA/shaders/axis_frag.slang
+        AMORA/shaders/scene2D/coordinate_grid_2D_vert.slang
+        AMORA/shaders/scene2D/coordinate_grid_2D_cartesian.slang
+        AMORA/shaders/scene2D/coordinate_grid_2D_polar.slang
 )
 set(COMPUTE_SHADERS_SOURCES
 )
@@ -204,19 +209,25 @@ target_link_libraries(AMORA PRIVATE glfw Vulkan::Vulkan glm quill::quill)
 
 set(SOURCES src/main.cpp
         # Sources
+        src/OpenMaVisApplication.hpp
         src/OpenMaVisApplication.cpp
+        src/file_utils.hpp
+        src/key_converter.hpp
 
         src/control/EventHandler2D.hpp
         src/control/EventHandler2D.cpp
         src/control/EventHandler3D.hpp
 
+        src/interface/dp.hpp
         src/interface/UserInterface.hpp
         src/interface/UserInterface.cpp
-        src/interface/MainMenuBar.hpp
-        src/interface/TabBar.hpp
+        src/interface/MainBar.hpp
+        src/interface/SideBar.hpp
+        src/interface/theme/Theme.hpp
+        src/interface/theme/Theme.cpp
 
-        # Headers
-        src/OpenMaVisApplication.hpp
+        src/preferences/PreferenceManager.hpp
+        src/preferences/PreferenceManager.cpp
 
         # Lib implementations
         libs/stb_image/stb_impl.cpp
@@ -229,8 +240,8 @@ set(SOURCES src/main.cpp
 add_executable(OpenMaVis ${SOURCES})
 add_dependencies(OpenMaVis GraphicsShaders)
 
-target_link_libraries(OpenMaVis PRIVATE AMORA glfw quill::quill)
-target_include_directories(OpenMaVis PRIVATE include libs/imgui libs/stb_image AMORA/include)
+target_link_libraries(OpenMaVis PRIVATE AMORA glfw quill::quill tomlplusplus::tomlplusplus)
+target_include_directories(OpenMaVis PRIVATE src libs/imgui libs/stb_image AMORA/include)
 
 add_custom_command(TARGET OpenMaVis PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory

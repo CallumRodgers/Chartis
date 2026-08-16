@@ -14,8 +14,8 @@ CoordinateGrid::CoordinateGrid(const vk::raii::Device& device,
                                const std::vector<vk::DescriptorSetLayout>& requiredLayouts)
         : mPipeline(device, {
             .shaderMap = {
-                {Vertex, std::make_shared<Shader>(device, "axis_vert")},
-                {Fragment, std::make_shared<Shader>(device, "axis_frag")}
+                {Vertex, std::make_shared<Shader>(device, "scene2D/coordinate_grid_2D_vert")},
+                {Fragment, std::make_shared<Shader>(device, "scene2D/coordinate_grid_2D_cartesian")}
             },
             .previousPipeline = nullptr,
             .surfaceFormat = surfaceFormat,

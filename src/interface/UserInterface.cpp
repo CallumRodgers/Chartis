@@ -10,12 +10,15 @@
 #include <backends/imgui_impl_glfw.h>
 #include <GLFW/glfw3.h>
 
-#include "MainMenuBar.hpp"
-#include "TabBar.hpp"
+#include "imgui_internal.h"
+#include "MainBar.hpp"
+#include "SideBar.hpp"
 
 using namespace mavis::interface;
 
-void UserInterface::setup(const amora::ImGuiEngineData& data) {
+static bool resetLayout = true;
+
+UserInterface::UserInterface(const amora::ImGuiEngineData& data) {
     ImGui::SetAllocatorFunctions(data.AllocFunc, data.FreeFunc, data.AllocUserData);
     ImGui::SetCurrentContext(data.Context);
 
@@ -30,22 +33,57 @@ void UserInterface::setup(const amora::ImGuiEngineData& data) {
     ImGuiStyle& style = ImGui::GetStyle();
     style.ScaleAllSizes(scale);
     style.FontScaleDpi = scale;
+    style.WindowRounding = 10.0f;
+    style.DisplaySafeAreaPadding = ImVec2(8.0f, 8.0f);
+    style.FramePadding = ImVec2(8.f, 8.f);
 
     style.FontSizeBase = 13.0f;
     ImFont* robotoFont = io.Fonts->AddFontFromFileTTF("res/fonts/Roboto/Roboto-VariableFont_wdth,wght.ttf");
     ImGui::PushFont(robotoFont);
+
+    ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+
+    ImGui::ClearIniSettings();
 }
 
-void UserInterface::layout() {
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDecoration;
-    if (ImGui::Begin("OpenMaVis", nullptr, flags)) {
-        ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+void UserInterface::layout(OpenMaVisApplication* app) {
+    mMainBar.layout(app);
 
-        MainMenuBar::create();
-        TabBar::create();
+    ///////////////////////////
+    // SETTING UP DOCK SPACE //
+    ///////////////////////////
 
-        ImGui::End();
-    } else {
-        throw std::runtime_error("Could not create main ImGui window!");
+    const ImGuiID dockSpaceID = ImGui::GetID("OpenMaVis DockSpace");
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+    if (ImGui::DockBuilderGetNode(dockSpaceID) == nullptr || resetLayout) {
+        resetLayout = false;
+
+        ImGui::DockBuilderAddNode(dockSpaceID, ImGuiDockNodeFlags_DockSpace);
+        ImGui::DockBuilderSetNodeSize(dockSpaceID, viewport->Size);
+        ImGuiID dock_id_left = 0;
+        ImGuiID dock_id_main = dockSpaceID;
+
+        const float sideBarRatio = SideBar::WIDTH / viewport->WorkSize.x;
+
+        ImGui::DockBuilderSplitNode(dock_id_main, ImGuiDir_Left, sideBarRatio, &dock_id_left, &dock_id_main);
+
+        ImGui::DockBuilderDockWindow("Main", dock_id_main);
+        ImGui::DockBuilderDockWindow(SideBar::WINDOW_NAME, dock_id_left);
+        ImGui::DockBuilderFinish(dockSpaceID);
     }
+
+    const auto dockSpaceFlags = ImGuiDockNodeFlags_PassthruCentralNode | static_cast<ImGuiDockNodeFlags_>(ImGuiDockNodeFlags_NoTabBar) | ImGuiDockNodeFlags_NoResize;
+    ImGui::DockSpaceOverViewport(dockSpaceID, viewport, dockSpaceFlags);
+
+
+
+
+    //ImGui::ShowDemoWindow();
+
+    ////////////////////////////
+    // SETTING UP SIDE WINDOW //
+    ////////////////////////////
+
+    mSideBar.layout();
 }

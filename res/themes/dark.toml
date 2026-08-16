@@ -1,0 +1,26 @@
+[Colors.Primary]
+Primary     = 0x25_25_25_FF
+OnPrimary   = 0xDD_DD_DD_FF
+
+[Colors.Secondary]
+Secondary   = 0x25_25_25_FF
+OnSecondary = 0x25_25_25_FF
+
+[Colors.Tertiary]
+Tertiary    = 0x25_25_25_FF
+OnTertiary  = 0x25_25_25_FF
+
+[Colors.Surface]
+Surface          = 0x25_25_25_FF
+SurfaceDim       = 0x25_25_25_FF
+SurfaceBright    = 0x25_25_25_FF
+OnSurface        = 0x25_25_25_FF
+OnSurfaceVariant = 0x25_25_25_FF
+Outline          = 0x25_25_25_FF
+OutlineVariant   = 0x25_25_25_FF
+
+[Colors.Others]
+Close            = 0x25_25_25_FF
+Error            = 0x25_25_25_FF
+OnError          = 0x25_25_25_FF
+Shadow           = 0x25_25_25_FF

@@ -8,18 +8,20 @@
 
 #include <AMORA/ImGuiEngineData.hpp>
 
-namespace amora {
-    class Engine;
-}
+#include "MainBar.hpp"
+#include "OpenMaVisApplication.hpp"
+#include "SideBar.hpp"
 
 namespace mavis::interface {
     class UserInterface {
     public:
-        static void setup(const amora::ImGuiEngineData& data);
+        explicit UserInterface(const amora::ImGuiEngineData& data);
 
-        static void layout();
+        void layout(OpenMaVisApplication* app);
 
-        static void end(const amora::Engine& engine);
+    private:
+        MainBar mMainBar;
+        SideBar mSideBar;
     };
 }
 
