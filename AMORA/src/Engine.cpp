@@ -11,7 +11,6 @@
 #include <quill/Frontend.h>
 #include <quill/sinks/ConsoleSink.h>
 
-#include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
 
 #include "CommandDispatcher.hpp"
@@ -37,7 +36,7 @@ void Engine::endLogging() {
     logger->flush_log();
 }
 
-Engine::Engine(GLFWwindow* window) {
+Engine::Engine(const EngineInitInfo& initInfo) {
     ////////////////////////////////////
     // CREATING VULKAN MEMBER OBJECTS //
     ////////////////////////////////////
@@ -50,7 +49,8 @@ Engine::Engine(GLFWwindow* window) {
 
     // With the context set up, we create a surface from the window where we may render.
     AMORA_INFO("Creating rendering surface from GLFW...");
-    mRenderSurface = std::make_unique<RenderSurface>(*mContext, window);
+    mRenderSurface = std::make_unique<RenderSurface>(*mContext, initInfo.platformInfo);
+    mRenderSurface->invalidateSize(initInfo.surfaceWidth, initInfo.surfaceHeight);
     AMORA_INFO("Setting up physical and logical devices...");
     // Surface ready. We can set up the physical device (GPU) and the logical device
     // based on our application needs.
@@ -63,7 +63,7 @@ Engine::Engine(GLFWwindow* window) {
     mComputeDispatcher = std::make_unique<CommandDispatcher>(device, mContext->getComputeIndex());
 
     AMORA_INFO("Creating swap chain...");
-    mSwapChain = std::make_unique<SwapChain>(*mContext, *mRenderSurface);
+    mSwapChain = std::make_unique<SwapChain>(*mContext, initInfo.surfaceWidth, initInfo.surfaceHeight, *mRenderSurface);
 
     AMORA_INFO("Initialising DescriptorLayoutManager...");
     mDescriptorManager = std::make_unique<DescriptorLayoutManager>(*mContext);
@@ -94,11 +94,10 @@ Engine::Engine(GLFWwindow* window) {
     AMORA_INFO("AMORA Engine setup finished");
 }
 
-ImGuiEngineData Engine::beginInterfaceBackend(GLFWwindow *window) const {
+ImGuiEngineData Engine::beginInterfaceBackend() const {
     IMGUI_CHECKVERSION();
     auto* guiContext = ImGui::CreateContext();
 
-    ImGui_ImplGlfw_InitForVulkan(window, true);
     ImGui_ImplVulkan_InitInfo initInfo = {
         .ApiVersion = config::info::API_VERSION,
         .Instance = *mContext->getInstance(),
@@ -130,7 +129,6 @@ ImGuiEngineData Engine::beginInterfaceBackend(GLFWwindow *window) const {
 
 void Engine::endInterfaceBackend() const {
     ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
@@ -169,6 +167,7 @@ void transitionImageLayout(
 }
 
 void Engine::invalidateSurfaceSize(uint32_t width, uint32_t height) const {
+    mRenderSurface->invalidateSize(width, height);
     mSwapChain->recreate();
     for (auto& scene : mLoadedScenes) {
         scene->updateSurfaceSize(width, height);
@@ -176,7 +175,7 @@ void Engine::invalidateSurfaceSize(uint32_t width, uint32_t height) const {
 }
 
 void Engine::loadScene(scene::Scene& scene, const bool setActive) {
-    auto [w, h] = mRenderSurface->getCurrentFramebufferSize();
+    auto [w, h] = mRenderSurface->getSurfaceSize();
     scene.setupCameraMatrices(w, h);
     scene.setupVulkan(*mContext, *mSwapChain, *mDescriptorManager);
     mLoadedScenes.push_back(&scene);
@@ -271,7 +270,6 @@ void Engine::beginFrame() {
     commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), swapChainExtent));
 
     ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 

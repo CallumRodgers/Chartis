@@ -13,18 +13,16 @@
 #include <AMORA/logger.hpp>
 #include "VulkanContext.hpp"
 
+#include <vulkan/vulkan_wayland.h>
+
 using namespace amora;
 
 /**
- * Retrieves all the required GLFW extensions plus any extra ones
- * OpenMaVis needs.
+ * Retrieves all the required extensions that OpenMaVis needs.
  * @return a vector with
  */
 std::vector<const char*> getRequiredInstanceExtensions() {
-    uint32_t glfwExtensionCount = 0;
-    const auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-    return extensions;
+    return {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME};
 }
 
 std::vector<const char*> getRequiredInstanceLayers() {
@@ -140,7 +138,7 @@ void VulkanContext::pickPhysicalDevice() {
     }
 
     if (capableDevices.size() == 1) {
-        const auto device = capableDevices.at(0);
+        const auto& device = capableDevices.at(0);
         AMORA_INFO("Automatically selected physical device: {}", std::string_view(device.getProperties().deviceName.data()));
         mPhysicalDevice = device;
     } else {

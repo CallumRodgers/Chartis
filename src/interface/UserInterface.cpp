@@ -7,7 +7,6 @@
 
 #include <imgui.h>
 #include <stdexcept>
-#include <backends/imgui_impl_glfw.h>
 #include <GLFW/glfw3.h>
 
 #include "imgui_internal.h"
@@ -29,7 +28,7 @@ UserInterface::UserInterface(const amora::ImGuiEngineData& data) {
 
     ImGui::StyleColorsDark();
 
-    const float scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
+    const float scale = 1.0f;
     ImGuiStyle& style = ImGui::GetStyle();
     style.ScaleAllSizes(scale);
     style.FontScaleDpi = scale;

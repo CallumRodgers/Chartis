@@ -9,13 +9,17 @@
 #include <AMORA/Scene2D.hpp>
 #include <GLFW/glfw3.h>
 
+#include "platform/NativeWindow.hpp"
+
 namespace mavis {
     /**
      *
      */
     class EventHandler2D {
     public:
-        explicit EventHandler2D(GLFWwindow* window) : mWindow(window) {}
+        typedef std::function<void()> scene_update_callback;
+
+        explicit EventHandler2D(const platform::NativeWindow& window) : mWindow(window) {}
 
         void setActiveScene(amora::scene::Scene2D* scene) { mScene = scene; }
 
@@ -24,16 +28,22 @@ namespace mavis {
             mSurfaceHeight = h;
         }
 
-        void processKeyEvent(int key, int scancode, int action, int mods);
+        void resetMouse();
+
+        void setUpdateCallback(const scene_update_callback& callback) { mCallback = callback; }
+
+        void processKeyEvent(Key key, Action action, Mods mods);
         void processMouseMotionEvent(double xpos, double ypos);
-        void processMouseButtonEvent(int button, int action, int mods);
+        void processMouseButtonEvent(MouseButton button, Action action, Mods mods);
         void processScrollEvent(double xoffset, double yoffset);
 
     private:
         constexpr static double POSITION_UNSET = -1.0;
 
-        GLFWwindow* mWindow;
+        const platform::NativeWindow& mWindow;
         amora::scene::Scene2D* mScene;
+
+        scene_update_callback mCallback;
 
         uint32_t mSurfaceWidth;
         uint32_t mSurfaceHeight;

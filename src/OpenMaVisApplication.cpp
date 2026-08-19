@@ -15,131 +15,113 @@
 
 using namespace mavis;
 
-void OpenMaVisApplication::createCursors(GLFWwindow* window) {
-    float xscale, yscale;
-
-    glfwGetWindowContentScale(window, &xscale, &yscale);
-
-    GLFWimage cursorImage;
-    int size;
-    int scaleFactor;
-
-    if (xscale >= 1.5f && yscale >= 1.5f) {
-        size = 64;
-        scaleFactor = 2;
-    } else {
-        size = 32;
-        scaleFactor = 1;
-    }
-
-    cursorImage.width = size;
-    cursorImage.height = size;
-
-    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/arrow" + std::to_string(size) + ".png"));
-    CURSOR_ARROW = glfwCreateCursor(&cursorImage, 3 * scaleFactor, 3 * scaleFactor);
-    file_utils::freeImage(cursorImage.pixels);
-
-    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/rotate" + std::to_string(size) + ".png"));
-    CURSOR_ROTATE = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
-    file_utils::freeImage(cursorImage.pixels);
-
-    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/crosshair" + std::to_string(size) + ".png"));
-    CURSOR_CROSSHAIR = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
-    file_utils::freeImage(cursorImage.pixels);
-
-    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/scale_horizontal" + std::to_string(size) + ".png"));
-    CURSOR_SCALE_HORIZONTAL = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
-    file_utils::freeImage(cursorImage.pixels);
-
-    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/scale_vertical" + std::to_string(size) + ".png"));
-    CURSOR_SCALE_VERTICAL = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
-    file_utils::freeImage(cursorImage.pixels);
-
-    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/shear_horizontal" + std::to_string(size) + ".png"));
-    CURSOR_SHEAR_HORIZONTAL = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
-    file_utils::freeImage(cursorImage.pixels);
-
-    cursorImage.pixels = std::get<stbi_uc*>(file_utils::loadImage("res/cursors/shear_vertical" + std::to_string(size) + ".png"));
-    CURSOR_SHEAR_VERTICAL = glfwCreateCursor(&cursorImage, 15 * scaleFactor, 15 * scaleFactor);
-    file_utils::freeImage(cursorImage.pixels);
-}
-
-GLFWwindow* OpenMaVisApplication::createWindow() {
-    if (!glfwInit()) {
-        throw std::runtime_error("GLFW: Failed to initialize GLFW.");
-    }
-    if (!glfwVulkanSupported()) {
-        throw std::runtime_error("GLFW: Vulkan support not available.");
-    }
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    // We have our own decoration.
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-
-    const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    const int windowWidth = static_cast<int>(videoMode->width * 0.7);
-    const int windowHeight = static_cast<int>(videoMode->height * 0.8);
-
-    GLFWwindow* win = glfwCreateWindow(windowWidth, windowHeight, "OpenMaVis", NULL, NULL);
-
-    MAVIS_INFO("Created GLFW window");
-    return win;
-}
-
 OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv)
-    : mWindow(createWindow()),
-      mEventHandler2D(mWindow)
-      //mEventHandler3D(mWindow)
+    : mEventHandler2D(mNativeWindow)
+        //mEventHandler3D(mWindow),
 {
-    int w, h;
-    glfwGetFramebufferSize(mWindow, &w, &h);
+    auto [w, h] = mNativeWindow.getWindowSize();
+
+    mEventHandler2D.setUpdateCallback([this]() -> void {
+        invalidateRender();
+    });
     mEventHandler2D.updateSurfaceSize(w, h);
 
-    glfwSetWindowUserPointer(mWindow, this);
+    ////////////////////////////////
+    // SETUP USER INPUT CALLBACKS //
+    ////////////////////////////////
 
-    //////////////////////////
-    // SETUP GLFW CALLBACKS //
-    //////////////////////////
+    mNativeWindow.setWindowResizeCallback([this](int width, int height) -> void {
+        invalidateSurface();
+    });
+    mNativeWindow.setPointerEnterCallback([this](double x, double y) -> void {
+        ImGui::GetIO().AddMousePosEvent(static_cast<float>(x), static_cast<float>(y));
+        mEventHandler2D.processMouseMotionEvent(x, y);
+        mNativeWindow.setCursor(Cursor::ARROW);
+    });
+    mNativeWindow.setPointerLeaveCallback([this]() -> void {
+        ImGui::GetIO().ClearInputMouse();
+        mEventHandler2D.resetMouse();
+    });
+    mNativeWindow.setPointerMoveCallback([this](double xpos, double ypos) -> void {
+        auto& io = ImGui::GetIO();
+        io.AddMousePosEvent(static_cast<float>(xpos), static_cast<float>(ypos));
 
-    // Setting up resize callback.
-    glfwSetFramebufferSizeCallback(mWindow, callbacks::onFramebufferResizeCallback);
-    // Setting up EventHandler callbacks.
-    glfwSetKeyCallback(mWindow, callbacks::onKeyEventCallback);
-    glfwSetCursorPosCallback(mWindow, callbacks::onMouseMotionEventCallback);
-    glfwSetMouseButtonCallback(mWindow, callbacks::onMouseButtonEventCallback);
-    glfwSetScrollCallback(mWindow, callbacks::onScrollEventCallback);
+        if (!io.WantCaptureMouse) {
+            mEventHandler2D.processMouseMotionEvent(xpos, ypos);
+        }
 
-    createCursors(mWindow);
-}
+        invalidateRender();
+    });
+    mNativeWindow.setPointerButtonCallback([this](MouseButton button, Action action, Mods mods) -> void {
+        auto& io = ImGui::GetIO();
 
-void OpenMaVisApplication::toggleFullscreenMode() {
-    const GLFWmonitor* currentMonitor = glfwGetWindowMonitor(mWindow);
+        ImGuiMouseButton imGuiButton;
+        switch (button) {
+            default:
+            case MouseButton::LEFT: imGuiButton = ImGuiMouseButton_Left; break;
+            case MouseButton::MIDDLE: imGuiButton = ImGuiMouseButton_Middle; break;
+            case MouseButton::RIGHT: imGuiButton = ImGuiMouseButton_Right; break;
+        }
 
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        io.AddMouseButtonEvent(imGuiButton, action == Action::PRESS);
 
-    if (currentMonitor == nullptr) { // Window is in windowed mode.
-        glfwGetWindowPos(mWindow, &mLastWindowX, &mLastWindowY);
-        glfwGetWindowSize(mWindow, &mLastWindowWidth, &mLastWindowHeight);
+        if (!io.WantCaptureMouse) {
+            mEventHandler2D.processMouseButtonEvent(button, action, mods);
+        }
 
-        glfwSetWindowMonitor(mWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-    } else { // Window is full-screen.
-        glfwSetWindowMonitor(mWindow, nullptr, mLastWindowX, mLastWindowY, mLastWindowWidth, mLastWindowHeight, mode->refreshRate);
-    }
+        invalidateRender();
+    });
+    mNativeWindow.setPointerScrollCallback([this](double xOffset, double yOffset) -> void {
+        auto& io = ImGui::GetIO();
+        io.AddMouseWheelEvent(xOffset, yOffset);
+
+        if (!io.WantCaptureMouse) {
+            mEventHandler2D.processScrollEvent(xOffset, yOffset);
+        }
+
+        invalidateRender();
+    });
+    mNativeWindow.setKeyCallback([this](Key key, Action action, Mods mods) -> void {
+        if (key == Key::F11 && action == Action::PRESS && mods == 0) {
+            mNativeWindow.toggleFullscreen();
+        }
+
+        auto& io = ImGui::GetIO();
+        if (action == Action::PRESS) {
+            io.AddKeyEvent(keyToImGuiKey(key), true);
+        } else if (action == Action::RELEASE) {
+            io.AddKeyEvent(keyToImGuiKey(key), false);
+        }
+
+        if (!io.WantCaptureKeyboard) {
+            mEventHandler2D.processKeyEvent(key, action, mods);
+        }
+
+        invalidateRender();
+    });
+
+    //createCursors(mWindow);
 }
 
 void OpenMaVisApplication::run() {
     amora::Engine::startLogging();
+
+    auto [windowWidth, windowHeight] = mNativeWindow.getWindowSize();
     // By creating the Engine object here, it'll be automatically cleaned up
     // once it goes out of scope (i.e., the main loop exits).
-    amora::Engine engine(mWindow);
-    const amora::ImGuiEngineData data = engine.beginInterfaceBackend(mWindow);
+    const amora::Engine::EngineInitInfo initInfo = {
+        .platformInfo = mNativeWindow.getNativePlatformInfo(),
+        .surfaceWidth = windowWidth,
+        .surfaceHeight = windowHeight
+    };
+    amora::Engine engine(initInfo);
+    const amora::ImGuiEngineData data = engine.beginInterfaceBackend();
 
     using interface::UserInterface;
     // Sets up the ImGui context on the application side, and sets up
     // interface styling, loads fonts, icons, etc.
     UserInterface ui(data);
+    ImGui::GetIO().DisplaySize = ImVec2(initInfo.surfaceWidth, initInfo.surfaceHeight);
 
     auto scene = amora::scene::Scene2D("Default");
     engine.loadScene(scene, true);
@@ -147,36 +129,39 @@ void OpenMaVisApplication::run() {
     mEventHandler2D.setActiveScene(&scene);
 
     // For our purposes we don't need to be rendering at V-Sync FPS non-stop if the
-    // user is not interacting with us; we can idle the GPU usage to 0% after 5 frames
+    // user is not interacting with us; we can idle the GPU usage to 0% after some frames
     // since the last input. The exception is if a scene is currently under animation,
     // in which case the engine will tell us, and the application will render continuously.
-    constexpr int maxContinuousFrames = 5;
+    constexpr int minContinuousFrames = 3;
     int frameIndex = 0;
-    bool waitEvents = false;
+    bool waitEvents = true;
     // Obviously we want to render the first frame.
+    bool firstFrame = true;
     mRenderInvalidated = true;
 
-    while (!glfwWindowShouldClose(mWindow)) {
-        //////////////////////
-        // EVENT PROCESSING //
-        //////////////////////
+    /////////////////////
+    // BEGIN MAIN LOOP //
+    /////////////////////
+    while (firstFrame || !waitEvents || !mNativeWindow.isClosing()) {
+        if (waitEvents && !firstFrame) {
+            // If we're here, it means the user has just interacted with the application.
+            // We must therefore render minContinuousFrames to give time for the UI to fully stabilise.
+            waitEvents = false;
+        }
 
-        if (waitEvents) {
-            glfwWaitEvents();
-            if (mRenderInvalidated) {
-                waitEvents = false;
-            }
-        } else {
-            glfwPollEvents();
+        if (!waitEvents) {
+            // If we're not waiting for events, we should poll them ourselves to ensure
+            // the application still receives inputs.
+            mNativeWindow.pollEvents();
         }
 
         if (mSurfaceInvalidated) {
-            int w, h;
-            glfwGetFramebufferSize(mWindow, &w, &h);
+            auto [w, h] = mNativeWindow.getWindowSize();
             engine.invalidateSurfaceSize(w, h);
             mEventHandler2D.updateSurfaceSize(w, h);
-            mSurfaceInvalidated = false;
             mRenderInvalidated = true;
+            ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
+            mSurfaceInvalidated = false;
         }
 
         ////////////////////////////
@@ -192,87 +177,21 @@ void OpenMaVisApplication::run() {
 
             // Updating frame variables and checking if we should idle the application.
             frameIndex++;
-            if (frameIndex == maxContinuousFrames) {
+            if (frameIndex == minContinuousFrames) {
                 frameIndex = 0;
                 waitEvents = true;
                 mRenderInvalidated = false;
             }
         }
-    } // Main loop.
+
+        if (firstFrame) {
+            firstFrame = false;
+        }
+    }
+    ///////////////////
+    // END MAIN LOOP //
+    ///////////////////
 
     engine.waitIdle();
     engine.endInterfaceBackend();
-}
-
-void OpenMaVisApplication::terminate() {
-    glfwDestroyWindow(mWindow);
-    glfwTerminate();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// GLFW CALLBACKS
-/////////////////////////////////////////////////////////////////////////////////////////
-
-void callbacks::onFramebufferResizeCallback(GLFWwindow* window, int width, int height) {
-    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
-    app->invalidateSurface();
-}
-
-void callbacks::onKeyEventCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
-    if (key == GLFW_KEY_F11 && action == GLFW_PRESS && mods == 0) {
-        app->toggleFullscreenMode();
-    }
-
-    auto& io = ImGui::GetIO();
-    if (action == GLFW_PRESS) {
-        io.AddKeyEvent(glfwKeyToImGuiKey(key), true);
-    } else if (action == GLFW_RELEASE) {
-        io.AddKeyEvent(glfwKeyToImGuiKey(key), false);
-    }
-
-    if (!io.WantCaptureKeyboard) {
-        app->mEventHandler2D.processKeyEvent(key, scancode, action, mods);
-    }
-
-    app->invalidateRender();
-}
-
-void callbacks::onMouseMotionEventCallback(GLFWwindow* window, double xpos, double ypos) {
-    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
-
-    auto& io = ImGui::GetIO();
-    io.AddMousePosEvent(static_cast<float>(xpos), static_cast<float>(ypos));
-
-    if (!io.WantCaptureMouse) {
-        app->mEventHandler2D.processMouseMotionEvent(xpos, ypos);
-    }
-
-    app->invalidateRender();
-}
-
-void callbacks::onMouseButtonEventCallback(GLFWwindow* window, int button, int action, int mods) {
-    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
-
-    auto& io = ImGui::GetIO();
-    io.AddMouseButtonEvent(button, action == GLFW_PRESS);
-
-    if (!io.WantCaptureMouse) {
-        app->mEventHandler2D.processMouseButtonEvent(button, action, mods);
-    }
-
-    app->invalidateRender();
-}
-
-void callbacks::onScrollEventCallback(GLFWwindow* window, double xoffset, double yoffset) {
-    const auto app = static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window));
-
-    auto& io = ImGui::GetIO();
-    io.AddMouseWheelEvent(xoffset, yoffset);
-
-    if (!io.WantCaptureMouse) {
-        app->mEventHandler2D.processScrollEvent(xoffset, yoffset);
-    }
-
-    app->invalidateRender();
 }

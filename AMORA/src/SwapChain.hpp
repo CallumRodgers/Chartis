@@ -15,7 +15,7 @@ namespace amora {
      */
     class SwapChain {
     public:
-        SwapChain(const VulkanContext& context, const RenderSurface& renderSurface);
+        SwapChain(const VulkanContext& context, uint32_t width, uint32_t height, const RenderSurface& renderSurface);
         ~SwapChain() { cleanUp(); }
 
         std::pair<bool, uint32_t> acquireNextImage(const vk::raii::Semaphore& renderCompleteSemaphore);
@@ -41,7 +41,7 @@ namespace amora {
         vk::Extent2D mSwapChainExtent;
         uint32_t mMinImageCount = 0;
 
-        void create(int width, int height);
+        void create(uint32_t width, uint32_t height);
     };
 }
 

@@ -5,11 +5,31 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # =========================================
+# PLATFORM VARIABLES
+# =========================================
+
+set(Windows FALSE)
+set(Apple FALSE)
+set(Linux FALSE)
+
+if (WIN32)
+    set(Windows TRUE)
+elseif (APPLE)
+    set(Apple TRUE)
+elseif (UNIX AND NOT APPLE)
+    set(Linux TRUE) # may also be FreeBSD, or any non-Apple UNIX system
+
+    find_library(WAYLAND_CLIENT_LIBRARY
+            NAMES wayland-client
+            PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu
+    )
+endif ()
+
+# =========================================
 # THIRD-PARTY LIBRARIES
 # =========================================
 
 find_package(Vulkan REQUIRED)
-find_package(glfw3 REQUIRED)
 find_package(slang REQUIRED)
 find_package(glm REQUIRED)
 
@@ -34,6 +54,30 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(tomlplusplus)
 # ===================
+
+# =========================================
+# Compiling XDG Shell protocol.
+# =========================================
+
+if (Linux)
+    set(XDG_SHELL_XML /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml)
+    set(XDG_DECORATION_XML /usr/share/wayland-protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml)
+
+    set(XDG_DIR ${CMAKE_CURRENT_BINARY_DIR}/xdg)
+    file(MAKE_DIRECTORY ${XDG_DIR})
+
+    set(XDG_SHELL_HEADER ${XDG_DIR}/xdg-shell-client-protocol.h)
+    set(XDG_SHELL_IMPL ${XDG_DIR}/xdg-shell-protocol.c)
+    message("Compiling XDG Shell protocol")
+    execute_process(COMMAND wayland-scanner client-header ${XDG_SHELL_XML} ${XDG_SHELL_HEADER})
+    execute_process(COMMAND wayland-scanner private-code ${XDG_SHELL_XML} ${XDG_SHELL_IMPL})
+
+    set(XDG_DECORATION_HEADER ${XDG_DIR}/xdg-decoration-client-protocol.h)
+    set(XDG_DECORATION_IMPL ${XDG_DIR}/xdg-decoration-protocol.c)
+    message("Compiling xdg-decoration protocol")
+    execute_process(COMMAND wayland-scanner client-header ${XDG_DECORATION_XML} ${XDG_DECORATION_HEADER})
+    execute_process(COMMAND wayland-scanner private-code ${XDG_DECORATION_XML} ${XDG_DECORATION_IMPL})
+endif ()
 
 # =========================================
 # Creating function for shader compilation.
@@ -113,7 +157,9 @@ compile_shaders(GraphicsShaders ${CMAKE_BINARY_DIR} ${GRAPHICS_SHADERS_SOURCES})
 add_library(AMORA SHARED)
 target_sources(AMORA
     PUBLIC
+        AMORA/include/AMORA/AMORA.hpp
         AMORA/include/AMORA/Engine.hpp
+        AMORA/include/AMORA/Platform.hpp
         AMORA/include/AMORA/ImGuiEngineData.hpp
         AMORA/include/AMORA/config.hpp
         AMORA/include/AMORA/algebra_types.hpp
@@ -181,7 +227,6 @@ target_sources(AMORA
         libs/imgui/imgui_draw.cpp
         libs/imgui/imgui_demo.cpp
 
-        libs/imgui/backends/imgui_impl_glfw.cpp
         libs/imgui/backends/imgui_impl_vulkan.cpp
 )
 
@@ -192,16 +237,14 @@ target_include_directories(AMORA
 
 # This saves us from having to define these macros every time we include a GLFW/Vulkan header.
 target_compile_definitions(AMORA PRIVATE
-        GLFW_INCLUDE_NONE
-        GLFW_INCLUDE_VULKAN
         VULKAN_HPP_NO_STRUCT_SETTERS
         VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
         VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 )
 # Precompilation speeds up the build process. It also takes it easier on the IDE parsing.
-target_precompile_headers(AMORA PRIVATE <GLFW/glfw3.h> <vulkan/vulkan_raii.hpp>)
+target_precompile_headers(AMORA PRIVATE <vulkan/vulkan_raii.hpp>)
 
-target_link_libraries(AMORA PRIVATE glfw Vulkan::Vulkan glm quill::quill)
+target_link_libraries(AMORA PRIVATE Vulkan::Vulkan glm quill::quill)
 
 # =========================================
 # Listing source files.
@@ -234,14 +277,36 @@ set(SOURCES src/main.cpp
 )
 
 # =========================================
+# Listing platform code sources
+# =========================================
+
+set(SOURCES ${SOURCES}
+        src/platform/NativeWindow.hpp
+        src/platform/NativeWindow.cpp
+)
+
+if (Linux)
+    set(SOURCES ${SOURCES}
+            ${XDG_SHELL_IMPL}
+            ${XDG_DECORATION_IMPL}
+            src/platform/Wayland.hpp
+            src/platform/Wayland.cpp
+    )
+endif ()
+
+# =========================================
 # Linking sources, modules, and libraries to executable.
 # =========================================
 
 add_executable(OpenMaVis ${SOURCES})
 add_dependencies(OpenMaVis GraphicsShaders)
 
-target_link_libraries(OpenMaVis PRIVATE AMORA glfw quill::quill tomlplusplus::tomlplusplus)
-target_include_directories(OpenMaVis PRIVATE src libs/imgui libs/stb_image AMORA/include)
+target_link_libraries(OpenMaVis PRIVATE AMORA quill::quill tomlplusplus::tomlplusplus)
+target_include_directories(OpenMaVis PRIVATE src libs/imgui libs/stb_image AMORA/include ${CMAKE_CURRENT_BINARY_DIR}/xdg)
+
+if (Linux)
+    target_link_libraries(OpenMaVis PRIVATE ${WAYLAND_CLIENT_LIBRARY})
+endif ()
 
 add_custom_command(TARGET OpenMaVis PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory

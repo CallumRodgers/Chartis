@@ -6,16 +6,16 @@
 #ifndef OPENMAVIS_OPENMAVISAPPLICATION_HPP
 #define OPENMAVIS_OPENMAVISAPPLICATION_HPP
 
-#include <GLFW/glfw3.h>
-
-#include <quill/LogMacros.h>
-#include <quill/Logger.h>
 #include <quill/Backend.h>
 #include <quill/Frontend.h>
+#include <quill/Logger.h>
+#include <quill/LogMacros.h>
 #include <quill/sinks/ConsoleSink.h>
 
 #include "control/EventHandler2D.hpp"
 #include "control/EventHandler3D.hpp"
+
+#include "platform/NativeWindow.hpp"
 
 #ifdef NDEBUG
 #define MAVIS_DEBUG(...)
@@ -50,55 +50,27 @@ namespace mavis {
         quill::Backend::stop();
     }
 
-    /** Static callback functions for user input that are directly invoked by GLFW. */
-    namespace callbacks {
-        static void onFramebufferResizeCallback (GLFWwindow* window, int width, int height);
-        static void onKeyEventCallback          (GLFWwindow* window, int key, int scancode, int action, int mods);
-        static void onMouseMotionEventCallback  (GLFWwindow* window, double xpos, double ypos);
-        static void onMouseButtonEventCallback  (GLFWwindow* window, int button, int action, int mods);
-        static void onScrollEventCallback       (GLFWwindow* window, double xoffset, double yoffset);
-    }
-
     class OpenMaVisApplication {
     public:
-        inline static GLFWcursor* CURSOR_ARROW = nullptr;
-        inline static GLFWcursor* CURSOR_ROTATE = nullptr;
-        inline static GLFWcursor* CURSOR_CROSSHAIR = nullptr;
-        inline static GLFWcursor* CURSOR_SCALE_HORIZONTAL = nullptr;
-        inline static GLFWcursor* CURSOR_SCALE_VERTICAL = nullptr;
-        inline static GLFWcursor* CURSOR_SHEAR_HORIZONTAL = nullptr;
-        inline static GLFWcursor* CURSOR_SHEAR_VERTICAL = nullptr;
-
-        GLFWwindow* mWindow;
-
-        EventHandler2D mEventHandler2D;
-        EventHandler3D mEventHandler3D;
-
         OpenMaVisApplication(int argc, char** argv);
 
         void run();
-        void terminate();
 
         void invalidateSurface() { mSurfaceInvalidated = true; }
         void invalidateRender() { mRenderInvalidated = true; }
 
-        void toggleFullscreenMode();
+        platform::NativeWindow mNativeWindow;
+
+        EventHandler2D mEventHandler2D;
+        EventHandler3D mEventHandler3D;
 
     private:
         bool mSurfaceInvalidated = false;
 
         bool mRenderInvalidated = false;
 
-        int mLastWindowX = 0;
-        int mLastWindowY = 0;
-        int mLastWindowWidth = 0;
-        int mLastWindowHeight = 0;
-
         /// Resizing operation doesn't need more than 30 FPS.
         int mMinResizeDelay = static_cast<int>(1.0f / 30.0f);
-
-        static GLFWwindow* createWindow();
-        static void createCursors(GLFWwindow* window);
     };
 }
 

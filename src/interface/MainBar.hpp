@@ -80,20 +80,31 @@ namespace mavis::interface {
 
                 ImGui::BeginGroup();
 
-                if (ImGui::Button("Minimise", windowButtonsSize)) {
-                    glfwIconifyWindow(app->mWindow);
+                if (!app->mNativeWindow.isFullscreen()) {
+                    if (ImGui::Button("Minimise", windowButtonsSize)) {
+                        app->mNativeWindow.minimise();
+                    }
                 }
 
-
                 if (ImGui::Button("Maximise", windowButtonsSize)) {
-                    app->toggleFullscreenMode();
+                    app->mNativeWindow.toggleMaximise();
                 }
 
                 if (ImGui::Button("Close", windowButtonsSize)) {
-                    glfwSetWindowShouldClose(app->mWindow, GLFW_TRUE);
+                    app->mNativeWindow.close();
                 }
 
                 ImGui::EndGroup();
+
+                if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_AllowWhenBlockedByPopup)) {
+                    if (!ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemActive()) {
+                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                            app->mNativeWindow.drag();
+                        } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+                            app->mNativeWindow.showNativeWindowMenu();
+                        }
+                    }
+                }
 
                 ImGui::EndMainMenuBar();
 

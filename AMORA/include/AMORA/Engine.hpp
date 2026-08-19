@@ -6,11 +6,11 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include <GLFW/glfw3.h>
-#include <AMORA/Scene.hpp>
 #include <memory>
+#include <AMORA/Scene.hpp>
 
 #include "ImGuiEngineData.hpp"
+#include "Platform.hpp"
 
 /**
  * Namespace of the Animated Mathematical Object Rendering Architecture (AMORA). The Vulkan code is entirely
@@ -40,11 +40,17 @@ namespace amora {
      */
     class Engine {
     public:
+        struct EngineInitInfo {
+            const NativePlatformInfo& platformInfo;
+            uint32_t surfaceWidth;
+            uint32_t surfaceHeight;
+        };
+
         static void startLogging();
         static void endLogging();
 
         /** Constructs a new engine to run on a GLFW window. */
-        explicit Engine(GLFWwindow* window);
+        explicit Engine(const EngineInitInfo& initInfo);
 
         /** Destroys any persistent Vulkan resources and stops logging. */
         ~Engine();
@@ -75,7 +81,7 @@ namespace amora {
          * and must be recreated. */
         void invalidateSurfaceSize(uint32_t width, uint32_t height) const;
 
-        ImGuiEngineData beginInterfaceBackend(GLFWwindow* window) const;
+        ImGuiEngineData beginInterfaceBackend() const;
         void endInterfaceBackend() const;
 
         void beginFrame();

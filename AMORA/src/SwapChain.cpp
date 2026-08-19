@@ -5,12 +5,14 @@
 
 #include "SwapChain.hpp"
 
+#include "AMORA/logger.hpp"
+
 using namespace amora;
 
-SwapChain::SwapChain(const VulkanContext& context, const RenderSurface& renderSurface)
+SwapChain::SwapChain(const VulkanContext& context, uint32_t width, uint32_t height, const RenderSurface& renderSurface)
     : mContext(context), mRenderSurface(renderSurface)
 {
-    auto [width, height] = renderSurface.getCurrentFramebufferSize();
+    AMORA_INFO("SwapChain size: {} x {}", width, height);
     create(width, height);
 }
 
@@ -39,7 +41,7 @@ vk::PresentModeKHR chooseSwapPresentMode(std::vector<vk::PresentModeKHR> const &
     return supportsFifoRelaxed ? vk::PresentModeKHR::eFifoRelaxed : vk::PresentModeKHR::eFifo;
 }
 
-vk::Extent2D chooseSwapExtent(const int width, const int height, vk::SurfaceCapabilitiesKHR const &capabilities) {
+vk::Extent2D chooseSwapExtent(const uint32_t width, const uint32_t height, vk::SurfaceCapabilitiesKHR const &capabilities) {
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return capabilities.currentExtent;
     }
@@ -57,7 +59,7 @@ uint32_t chooseSwapMinImageCount(vk::SurfaceCapabilitiesKHR const &surfaceCapabi
     return minImageCount;
 }
 
-void SwapChain::create(const int width, const int height) {
+void SwapChain::create(const uint32_t width, const uint32_t height) {
     const auto surfaceCapabilities = mRenderSurface.getCurrentCapabilities();
     mSwapChainExtent = chooseSwapExtent(width, height, surfaceCapabilities);
     mMinImageCount = chooseSwapMinImageCount(surfaceCapabilities);
@@ -117,11 +119,10 @@ std::pair<bool, uint32_t> SwapChain::acquireNextImage(const vk::raii::Semaphore&
 }
 
 void SwapChain::recreate() {
-    // If the app is minimised, it'll pause until we get a valid size again.
-    auto [width, height] = mRenderSurface.pauseUntilValidSize();
     mContext.getDevice().waitIdle();
     cleanUp();
-    create(width, height);
+    auto [w, h] = mRenderSurface.getSurfaceSize();
+    create(w, h);
 }
 
 void SwapChain::cleanUp() {

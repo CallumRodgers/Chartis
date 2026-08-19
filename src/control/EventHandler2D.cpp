@@ -11,37 +11,36 @@
 #include "../OpenMaVisApplication.hpp"
 #include "AMORA/logger.hpp"
 
-#define APP_POINTER(window) static_cast<OpenMaVisApplication*>(glfwGetWindowUserPointer(window))
 #define SCREEN_TO_NDC(x, w) ((2.f * x / w) - 1.f)
 
 using namespace mavis;
 
-void EventHandler2D::processKeyEvent(int key, int scancode, int action, int mods) {
+void EventHandler2D::processKeyEvent(Key key, Action action, Mods mods) {
     // Shift key bindings.
-    if (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT) {
-        if (action == GLFW_PRESS) {
+    if (key == Key::LEFT_SHIFT || key == Key::RIGHT_SHIFT) {
+        if (action == Action::PRESS) {
             mIsShiftPressed = true;
-        } else if (action == GLFW_RELEASE) {
+        } else if (action == Action::RELEASE) {
             mIsShiftPressed = false;
         }
         updateCursor();
         return;
     }
     // Control key bindings.
-    if (key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL) {
-        if (action == GLFW_PRESS) {
+    if (key == Key::LEFT_CONTROL || key == Key::RIGHT_CONTROL) {
+        if (action == Action::PRESS) {
             mIsControlPressed = true;
-        } else if (action == GLFW_RELEASE) {
+        } else if (action == Action::RELEASE) {
             mIsControlPressed = false;
         }
         updateCursor();
         return;
     }
     // Alt key bindings.
-    if (key == GLFW_KEY_LEFT_ALT || key == GLFW_KEY_RIGHT_ALT) {
-        if (action == GLFW_PRESS) {
+    if (key == Key::LEFT_ALT || key == Key::RIGHT_ALT) {
+        if (action == Action::PRESS) {
             mIsAltPressed = true;
-        } else if (action == GLFW_RELEASE) {
+        } else if (action == Action::RELEASE) {
             mIsAltPressed = false;
         }
         updateCursor();
@@ -49,11 +48,11 @@ void EventHandler2D::processKeyEvent(int key, int scancode, int action, int mods
     }
 
     // R resets the view.
-    if (key == GLFW_KEY_R) {
-        if (action == GLFW_PRESS) {
+    if (key == Key::R) {
+        if (action == Action::PRESS) {
             mScene->mCamera.reset();
             mScene->invalidateCameraMatrices();
-            APP_POINTER(mWindow)->invalidateRender();
+            mCallback();
         }
     }
 }
@@ -127,25 +126,24 @@ void EventHandler2D::processMouseMotionEvent(double xpos, double ypos) {
         }
 
         mScene->invalidateCameraMatrices();
-        APP_POINTER(mWindow)->invalidateRender();
+        mCallback();
     }
 
     mLastX = xpos;
     mLastY = ypos;
 }
 
-void EventHandler2D::processMouseButtonEvent(int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (action == GLFW_PRESS) {
+void EventHandler2D::processMouseButtonEvent(MouseButton button, Action action, Mods mods) {
+    if (button == MouseButton::LEFT) {
+        if (action == Action::PRESS) {
             mIsLeftMouseButtonPressed = true;
-            glfwGetCursorPos(mWindow, &mLastX, &mLastY);
-        } else if (action == GLFW_RELEASE) {
+        } else if (action == Action::RELEASE) {
             mIsLeftMouseButtonPressed = false;
         }
-    } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-        if (action == GLFW_PRESS) {
+    } else if (button == MouseButton::RIGHT) {
+        if (action == Action::PRESS) {
             mIsRightMouseButtonPressed = true;
-        } else if (action == GLFW_RELEASE) {
+        } else if (action == Action::RELEASE) {
             mIsRightMouseButtonPressed = false;
         }
     }
@@ -185,36 +183,43 @@ void EventHandler2D::processScrollEvent(double xoffset, double yoffset) {
     }
 
     mScene->invalidateCameraMatrices();
-    APP_POINTER(mWindow)->invalidateRender();
+    mCallback();
+}
+
+void EventHandler2D::resetMouse() {
+    mLastX = POSITION_UNSET;
+    mLastY = POSITION_UNSET;
+    mIsLeftMouseButtonPressed = false;
+    mIsRightMouseButtonPressed = false;
 }
 
 void EventHandler2D::updateCursor() const {
     if (!mIsAltPressed && !mIsControlPressed) {
         if (mIsShiftPressed) {
             // Only shift is pressed, so multiselect is enabled.
-            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_CROSSHAIR);
+            mWindow.setCursor(Cursor::CROSSHAIR);
         } else {
             // Nothing is pressed: default cursor.
-            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_ARROW);
+            mWindow.setCursor(Cursor::ARROW);
         }
     } else if (mIsControlPressed && !mIsAltPressed) {
         // Only control pressed: rotate. Shift makes no difference.
-        glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_ROTATE);
+        mWindow.setCursor(Cursor::ROTATE);
     } else if (mIsAltPressed && !mIsControlPressed) { // First condition is redundant but kept for clarity.
         if (mIsShiftPressed) {
             // ALT + SHIFT: Scale vertical.
-            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_SCALE_VERTICAL);
+            mWindow.setCursor(Cursor::SCALE_VERTICAL);
         } else {
             // Only ALT: Scale horizontal.
-            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_SCALE_HORIZONTAL);
+            mWindow.setCursor(Cursor::SCALE_HORIZONTAL);
         }
     } else { // Both ALT and CONTROL are pressed.
         if (mIsShiftPressed) {
             // CONTROL + ALT + SHIFT: Shear vertical.
-            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_SHEAR_VERTICAL);
+            mWindow.setCursor(Cursor::SHEAR_VERTICAL);
         } else {
             // Only ALT: Shear horizontal.
-            glfwSetCursor(mWindow, OpenMaVisApplication::CURSOR_SHEAR_HORIZONTAL);
+            mWindow.setCursor(Cursor::SHEAR_HORIZONTAL);
         }
     }
 }

@@ -7,9 +7,7 @@
 #define OPENMAVIS_RENDERSURFACE_HPP
 
 #include "VulkanContext.hpp"
-
-// Forward declaring the window class to keep GLFW in the implementation file.
-struct GLFWwindow;
+#include "AMORA/Platform.hpp"
 
 namespace amora {
 
@@ -18,7 +16,13 @@ namespace amora {
      */
     class RenderSurface {
     public:
-        RenderSurface(const VulkanContext& context, GLFWwindow* window);
+        RenderSurface(const VulkanContext& context, const NativePlatformInfo& platformInfo);
+
+        void invalidateSize(uint32_t width, uint32_t height) {
+            if (width <= 0 || height <= 0) throw std::invalid_argument("Surface dimensions must be positive.");
+            mSurfaceWidth = width;
+            mSurfaceHeight = height;
+        }
 
         /** Retrieves the capabilities of the current surface from the physical device. */
         [[nodiscard]] auto getCurrentCapabilities() const noexcept {
@@ -32,25 +36,21 @@ namespace amora {
         [[nodiscard]] std::vector<vk::PresentModeKHR> getCurrentPresentModes() const noexcept {
             return mContext.getPhysicalDevice().getSurfacePresentModesKHR(*mSurface);
         }
-        /** Retrieves the current framebuffer size of the window. */
-        [[nodiscard]] std::pair<uint32_t, uint32_t> getCurrentFramebufferSize() const;
-        /** Pauses the engine until the framebuffer size is valid (i.e., non-zero).
-         * This is mostly useful for when the window was minimised, and we want to stop all
-         * graphics work. */
-        [[nodiscard]] std::pair<uint32_t, uint32_t> pauseUntilValidSize() const;
+        /** Retrieves the current size of the surface, which is the same as the window */
+        [[nodiscard]] std::pair<uint32_t, uint32_t> getSurfaceSize() const noexcept {
+            return {mSurfaceWidth, mSurfaceHeight};
+        }
 
         [[nodiscard]] const vk::raii::SurfaceKHR& getSurface() const noexcept {
             return mSurface;
         }
 
-        [[nodiscard]] GLFWwindow* getWindow() const noexcept {
-            return mWindowHandle;
-        }
-
     private:
         const VulkanContext& mContext;
-        GLFWwindow* mWindowHandle;
         vk::raii::SurfaceKHR mSurface = nullptr;
+
+        uint32_t mSurfaceWidth;
+        uint32_t mSurfaceHeight;
     };
 }
 
