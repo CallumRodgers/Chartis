@@ -7,26 +7,44 @@
 #define OPENMAVIS_MAINMENUBAR_HPP
 
 #include <imgui.h>
-#include "OpenMaVisApplication.hpp"
 #include "dp.hpp"
+#include "OpenMaVisApplication.hpp"
+#include "UIContext.hpp"
 
 namespace mavis::interface {
     class MainBar {
     public:
-        void layout(OpenMaVisApplication* app) {
+        void layout(const UIContext& context) {
 
-            const float desiredHeight = 48_dp;
+            auto& iconManager = context.iconManager;
+
+            const float desiredHeight = 40_dp;
             const float fontSize = ImGui::GetFontSize();
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, (desiredHeight - fontSize) / 2.f));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+            ImGui::PushStyleVarX(ImGuiStyleVar_WindowPadding, 0.f);
 
             if (ImGui::BeginMainMenuBar()) {
 
-                if (ImGui::Button("=")) {
+                const auto desiredSize = ImGui::GetFrameHeight();
+                const auto framePadding = ImGui::GetStyle().FramePadding;
+
+                const auto windowButtonsSize = ImVec2(desiredSize - 2 * framePadding.x, desiredSize - 2 * framePadding.y);
+                const float windowButtonsPos = ImGui::GetWindowViewport()->Size.x - 3 * desiredSize;
+                const auto windowButtonSizeRatio = windowButtonsSize.y / windowButtonsSize.x;
+
+                const auto uv0 = ImVec2(0.f, 0.5f - windowButtonSizeRatio / 2);
+                const auto uv1 = ImVec2(1.f, 0.5f + windowButtonSizeRatio / 2);
+
+                ImGui::SetCursorPosX(0.f);
+                if (ImGui::ImageButton("Menu", iconManager.getIconImage(MENU), windowButtonsSize, uv0, uv1)) {
                     mIsMainMenuShowing = !mIsMainMenuShowing;
-                    app->invalidateRender();
+                    context.app->invalidateRender();
                 }
 
                 if (mIsMainMenuShowing) {
+                    ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 10.0f);
+
                     if (ImGui::BeginMenu("OpenMaVis")) {
 
                         ImGui::EndMenu();
@@ -51,6 +69,7 @@ namespace mavis::interface {
 
                         ImGui::EndMenu();
                     }
+                    ImGui::PopStyleVar();
                 } else {
                     if (ImGui::BeginTabBar("SceneTabs")) {
 
@@ -59,7 +78,7 @@ namespace mavis::interface {
                             ImGui::EndTabItem();
                         }
 
-                        if (ImGui::Button("+")) {
+                        if (ImGui::ImageButton("AddTab", iconManager.getIconImage(PLUS), windowButtonsSize, uv0, uv1)) {
                             MAVIS_INFO("NEW TAB!");
                         }
 
@@ -73,43 +92,51 @@ namespace mavis::interface {
 
                 ImGui::SameLine();
 
-                const auto windowButtonsSize = ImVec2(50_dp, 0.f);
-                const float windowButtonsPos = ImGui::GetWindowViewport()->WorkSize.x - 3 * windowButtonsSize.x;
-
                 ImGui::SetCursorPosX(windowButtonsPos);
+                ImGui::PushStyleVarX(ImGuiStyleVar_ItemSpacing, 0.f);
 
-                ImGui::BeginGroup();
+                const bool isMaximised = context.app->mNativeWindow.isMaximised();
+                const bool isFullscreen = context.app->mNativeWindow.isFullscreen();
 
-                if (!app->mNativeWindow.isFullscreen()) {
-                    if (ImGui::Button("Minimise", windowButtonsSize)) {
-                        app->mNativeWindow.minimise();
+                if (!isFullscreen) {
+                    if (ImGui::ImageButton("Minimise", iconManager.getIconImage(MINIMISE), windowButtonsSize, uv0, uv1)) {
+                        context.app->mNativeWindow.minimise();
+                    }
+                    ImGui::SameLine();
+                } else {
+                    // Need to take the missing button into account for the layout.
+                    ImGui::SetCursorPosX(windowButtonsPos + desiredSize);
+                }
+
+                const ImTextureID maximiseIcon = isMaximised || isFullscreen ? iconManager.getIconImage(COLLAPSE) : iconManager.getIconImage(MAXIMISE);
+                if (ImGui::ImageButton("Maximise", maximiseIcon, windowButtonsSize, uv0, uv1)) {
+                    if (isFullscreen) {
+                        context.app->mNativeWindow.toggleFullscreen();
+                    } else {
+                        context.app->mNativeWindow.toggleMaximise();
                     }
                 }
-
-                if (ImGui::Button("Maximise", windowButtonsSize)) {
-                    app->mNativeWindow.toggleMaximise();
+                ImGui::SameLine();
+                if (ImGui::ImageButton("Close", iconManager.getIconImage(CLOSE), windowButtonsSize, uv0, uv1)) {
+                    context.app->mNativeWindow.close();
                 }
 
-                if (ImGui::Button("Close", windowButtonsSize)) {
-                    app->mNativeWindow.close();
-                }
 
-                ImGui::EndGroup();
+                ImGui::PopStyleVar();
 
                 if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_AllowWhenBlockedByPopup)) {
                     if (!ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemActive()) {
                         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                            app->mNativeWindow.drag();
+                            context.app->mNativeWindow.drag();
                         } else if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
-                            app->mNativeWindow.showNativeWindowMenu();
+                            context.app->mNativeWindow.showNativeWindowMenu();
                         }
                     }
                 }
 
                 ImGui::EndMainMenuBar();
-
-                ImGui::PopStyleVar();
             }
+            ImGui::PopStyleVar(3);
         }
 
     private:

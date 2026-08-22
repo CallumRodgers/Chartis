@@ -11,6 +11,7 @@
 
 #include "ImGuiEngineData.hpp"
 #include "Platform.hpp"
+#include "res_id.hpp"
 
 /**
  * Namespace of the Animated Mathematical Object Rendering Architecture (AMORA). The Vulkan code is entirely
@@ -18,21 +19,22 @@
  * the main application code.
  */
 namespace amora {
-    // =====================
-    // Forward declarations.
-    // =====================
-
+    ////////////////////////////////
+    // BEGIN FORWARD DECLARATIONS //
     class VulkanContext;
     class RenderSurface;
     class CommandDispatcher;
     class SwapChain;
     class DescriptorLayoutManager;
+    class TextureManager;
     class SemaphoreGroup;
     class FenceGroup;
 
     namespace graphics {
         class GraphicsPipeline;
     }
+    // END FORWARD DECLARATIONS   //
+    ////////////////////////////////
 
     /**
      * The <code>Engine</code> class is the basis of the public AMORA API. Besides the explicit
@@ -89,6 +91,8 @@ namespace amora {
 
         void waitIdle() const;
 
+        ImTextureID loadIcon(resource_id id, const char* iconPath) const;
+
     private:
         /// Holds the Vulkan instance and devices. Automatically initialised through
         /// its trivial constructor.
@@ -104,6 +108,8 @@ namespace amora {
         /// Handles the descriptors across the application, i.e. the shader bindings, their link
         /// with data buffers, etc.
         std::unique_ptr<DescriptorLayoutManager> mDescriptorManager;
+        /// Manages and owns all the global textures used by OpenMaVis.
+        std::unique_ptr<TextureManager> mTextureManager;
 
         std::unique_ptr<SemaphoreGroup> mPresentCompleteSemaphores;
         std::unique_ptr<SemaphoreGroup> mRenderCompleteSemaphores;

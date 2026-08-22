@@ -17,7 +17,7 @@ using namespace mavis::interface;
 
 static bool resetLayout = true;
 
-UserInterface::UserInterface(const amora::ImGuiEngineData& data) {
+UserInterface::UserInterface(const amora::ImGuiEngineData& data, const IconManager& iconManager) : mIconManager(iconManager) {
     ImGui::SetAllocatorFunctions(data.AllocFunc, data.FreeFunc, data.AllocUserData);
     ImGui::SetCurrentContext(data.Context);
 
@@ -36,7 +36,7 @@ UserInterface::UserInterface(const amora::ImGuiEngineData& data) {
     style.DisplaySafeAreaPadding = ImVec2(8.0f, 8.0f);
     style.FramePadding = ImVec2(8.f, 8.f);
 
-    style.FontSizeBase = 13.0f;
+    style.FontSizeBase = 11.0f;
     ImFont* robotoFont = io.Fonts->AddFontFromFileTTF("res/fonts/Roboto/Roboto-VariableFont_wdth,wght.ttf");
     ImGui::PushFont(robotoFont);
 
@@ -46,7 +46,12 @@ UserInterface::UserInterface(const amora::ImGuiEngineData& data) {
 }
 
 void UserInterface::layout(OpenMaVisApplication* app) {
-    mMainBar.layout(app);
+    const UIContext context {
+        .app = app,
+        .iconManager = mIconManager
+    };
+
+    mMainBar.layout(context);
 
     ///////////////////////////
     // SETTING UP DOCK SPACE //
@@ -84,5 +89,5 @@ void UserInterface::layout(OpenMaVisApplication* app) {
     // SETTING UP SIDE WINDOW //
     ////////////////////////////
 
-    mSideBar.layout();
+    mSideBar.layout(context);
 }

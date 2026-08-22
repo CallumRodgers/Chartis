@@ -6,6 +6,7 @@
 #ifndef OPENMAVIS_CONFIG_HPP
 #define OPENMAVIS_CONFIG_HPP
 
+#include <cstdint>
 #include <vector>
 
 // CTRL+C -> CTRL+V of Vulkan's macro.

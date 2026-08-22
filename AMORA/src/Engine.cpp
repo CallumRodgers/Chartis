@@ -18,10 +18,9 @@
 #include "FenceGroup.hpp"
 #include "RenderSurface.hpp"
 #include "SemaphoreGroup.hpp"
-#include "Shader.hpp"
 #include "SwapChain.hpp"
+#include "TextureManager.hpp"
 #include "VulkanContext.hpp"
-#include "graphics/GraphicsPipeline.hpp"
 
 using namespace amora;
 
@@ -68,6 +67,9 @@ Engine::Engine(const EngineInitInfo& initInfo) {
     AMORA_INFO("Initialising DescriptorLayoutManager...");
     mDescriptorManager = std::make_unique<DescriptorLayoutManager>(*mContext);
 
+    AMORA_INFO("Initialising TextureManager...");
+    mTextureManager = std::make_unique<TextureManager>(*mContext);
+
     AMORA_INFO("Creating synchronisation objects...");
     mPresentCompleteSemaphores = std::make_unique<SemaphoreGroup>(device, config::rendering::MAX_FRAMES_IN_FLIGHT);
     mRenderCompleteSemaphores = std::make_unique<SemaphoreGroup>(device, static_cast<uint32_t>(mSwapChain->getImages().size()));
@@ -105,7 +107,7 @@ ImGuiEngineData Engine::beginInterfaceBackend() const {
         .Device = *mContext->getDevice(),
         .QueueFamily = mGraphicsDispatcher->getFamilyIndex(),
         .Queue = *mGraphicsDispatcher->getQueue(),
-        .DescriptorPoolSize = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE,
+        .DescriptorPoolSize = 100,
         .MinImageCount = mSwapChain->getMinImageCount(),
         .ImageCount = static_cast<uint32_t>(mSwapChain->getImages().size()),
         .PipelineCache = nullptr,
@@ -125,6 +127,12 @@ ImGuiEngineData Engine::beginInterfaceBackend() const {
     ImGui::GetAllocatorFunctions(&data.AllocFunc, &data.FreeFunc, &data.AllocUserData);
 
     return data;
+}
+
+ImTextureID Engine::loadIcon(resource_id iconId, const char* iconPath) const {
+    AMORA_INFO("ICON ID: {}", iconId);
+    const StaticTexture& texture = mTextureManager->loadStaticTexture(*mGraphicsDispatcher, iconId, iconPath);
+    return reinterpret_cast<ImTextureID>(ImGui_ImplVulkan_AddTexture(&**texture.getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 }
 
 void Engine::endInterfaceBackend() const {

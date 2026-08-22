@@ -12,6 +12,7 @@
 #include <AMORA/Scene2D.hpp>
 #include "file_utils.hpp"
 #include "key_converter.hpp"
+#include "interface/IconManager.hpp"
 
 using namespace mavis;
 
@@ -41,6 +42,8 @@ OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv)
     mNativeWindow.setPointerLeaveCallback([this]() -> void {
         ImGui::GetIO().ClearInputMouse();
         mEventHandler2D.resetMouse();
+
+        invalidateRender();
     });
     mNativeWindow.setPointerMoveCallback([this](double xpos, double ypos) -> void {
         auto& io = ImGui::GetIO();
@@ -117,10 +120,13 @@ void OpenMaVisApplication::run() {
     amora::Engine engine(initInfo);
     const amora::ImGuiEngineData data = engine.beginInterfaceBackend();
 
+    auto iconManager = interface::IconManager(engine);
+    iconManager.loadIcons();
+
     using interface::UserInterface;
     // Sets up the ImGui context on the application side, and sets up
     // interface styling, loads fonts, icons, etc.
-    UserInterface ui(data);
+    UserInterface ui(data, iconManager);
     ImGui::GetIO().DisplaySize = ImVec2(initInfo.surfaceWidth, initInfo.surfaceHeight);
 
     auto scene = amora::scene::Scene2D("Default");
