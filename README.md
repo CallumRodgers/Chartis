@@ -1,6 +1,4 @@
-# OpenMaVis (under construction!)
-
-***
+# OpenMaVis (under construction)
 
 **Open** **Ma**thematics **Vis**ualiser is a [Vulkan](https://www.vulkan.org/)-based graphics software for 
 real-time mathematical plotting and visualisation. It targets performance and visual customisation rather 
@@ -43,11 +41,10 @@ Vulkan engine that powers OpenMaVis.
 ***
 
 To bring OpenMaVis to life, the following libraries were used:
-* Vulkan : As the main graphics API;
-* GLFW : For cross-platform window and rendering surface creation;
-* Quill : For asynchronous logging;
-* Dear ImGui : For building the user interface with the Vulkan backend;
-* GLM : For the mountain of linear algebra needed by graphics applications;
-* Slang : As the shader language, compiled to SPIR-V during the build process (for static pipelines)
+* [Vulkan](https://www.vulkan.org/) : As the main graphics API;
+* [Quill](https://github.com/odygrd/quill) : For asynchronous logging;
+* [Dear ImGui](https://github.com/ocornut/imgui) : For building the user interface with the Vulkan backend;
+* [GLM](https://github.com/icaven/glm) : For the mountain of linear algebra needed by graphics applications;
+* [Slang](https://shader-slang.org/) : As the shader language, compiled to SPIR-V during the build process (for static pipelines)
 and during run-time (for user-defined shader code);
-* stb-image : For resource image loading;
+* [stb-image](https://github.com/nothings/stb/blob/master/stb_image.h) : For resource image loading;
