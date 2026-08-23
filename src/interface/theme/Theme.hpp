@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_THEME_HPP
-#define OPENMAVIS_THEME_HPP
+#ifndef CHARTIS_THEME_HPP
+#define CHARTIS_THEME_HPP
 
 #include <toml++/toml.hpp>
 
-namespace mavis::interface::theme {
+namespace chartis::interface::theme {
     class Theme {
 
     };
 }
 
-#endif //OPENMAVIS_THEME_HPP
+#endif //CHARTIS_THEME_HPP

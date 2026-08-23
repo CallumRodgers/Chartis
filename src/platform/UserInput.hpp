@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_USERINPUT_HPP
-#define OPENMAVIS_USERINPUT_HPP
+#ifndef CHARTIS_USERINPUT_HPP
+#define CHARTIS_USERINPUT_HPP
 
 #include <functional>
 
-namespace mavis {
+namespace chartis {
     enum class MouseButton {
         LEFT, MIDDLE, RIGHT
     };
@@ -55,4 +55,4 @@ namespace mavis {
     };
 }
 
-#endif //OPENMAVIS_USERINPUT_HPP
+#endif //CHARTIS_USERINPUT_HPP

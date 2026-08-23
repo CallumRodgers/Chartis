@@ -119,7 +119,7 @@
 #ifndef IMGUI_DISABLE
 #include "imgui_impl_glfw.h"
 
-#include "../../../src/OpenMaVisApplication.hpp"
+#include "../../../src/ChartisApplication.hpp"
 
 // Clang warnings with -Weverything
 #if defined(__clang__)
@@ -777,7 +777,7 @@ static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, Glfw
     // Missing cursors will return nullptr and our _UpdateMouseCursor() function will use the Arrow cursor instead.)
 #if GLFW_HAS_CREATECURSOR
     GLFWerrorfun prev_error_callback = glfwSetErrorCallback(nullptr);
-    bd->MouseCursors[ImGuiMouseCursor_Arrow]     = mavis::OpenMaVisApplication::CURSOR_ARROW;
+    bd->MouseCursors[ImGuiMouseCursor_Arrow]     = mavis::ChartisApplication::CURSOR_ARROW;
     bd->MouseCursors[ImGuiMouseCursor_TextInput] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
     bd->MouseCursors[ImGuiMouseCursor_ResizeNS]  = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
     bd->MouseCursors[ImGuiMouseCursor_ResizeEW]  = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);

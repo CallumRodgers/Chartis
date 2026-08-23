@@ -5,7 +5,7 @@
 
 #include "Wayland.hpp"
 
-#include "OpenMaVisApplication.hpp"
+#include "ChartisApplication.hpp"
 
 #include <cstring>
 #include <stdexcept>
@@ -19,7 +19,7 @@
 #include "file_utils.hpp"
 #include "wayland_converter.hpp"
 
-using namespace mavis;
+using namespace chartis;
 using namespace ::platform;
 
 //////////////////////////////
@@ -296,7 +296,7 @@ void Wayland::handleKeyboardListener() {
 /////////////////////////////////
 
 Wayland::Wayland() {
-    MAVIS_INFO("Starting Wayland window creation.");
+    CHARTIS_INFO("Starting Wayland window creation.");
     // Connecting to Wayland compositor.
     m_display = wl_display_connect(nullptr);
     if (m_display == nullptr) {
@@ -319,7 +319,7 @@ Wayland::Wayland() {
     m_xdg_surface  = xdg_wm_base_get_xdg_surface(m_xdg_wm_base, m_surface);
     m_xdg_toplevel = xdg_surface_get_toplevel(m_xdg_surface);
 
-    xdg_toplevel_set_title(m_xdg_toplevel, "OpenMaVis");
+    xdg_toplevel_set_title(m_xdg_toplevel, "Chartis");
 
     if (m_xdg_decoration_manager != nullptr) {
         m_xdg_decoration = zxdg_decoration_manager_v1_get_toplevel_decoration(m_xdg_decoration_manager, m_xdg_toplevel);

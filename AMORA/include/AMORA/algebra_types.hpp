@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_MAVISTYPES_HPP
-#define OPENMAVIS_MAVISTYPES_HPP
+#ifndef CHARTIS_MAVISTYPES_HPP
+#define CHARTIS_MAVISTYPES_HPP
 
 #include <glm/matrix.hpp>
 
@@ -26,4 +26,4 @@ typedef glm::mat3x3 m_mat3x3;
 typedef glm::mat4x4 m_mat4x4;
 #endif
 
-#endif //OPENMAVIS_MAVISTYPES_HPP
+#endif //CHARTIS_MAVISTYPES_HPP

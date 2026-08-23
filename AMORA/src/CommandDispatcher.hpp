@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_COMMANDDISPATCHER_HPP
-#define OPENMAVIS_COMMANDDISPATCHER_HPP
+#ifndef CHARTIS_COMMANDDISPATCHER_HPP
+#define CHARTIS_COMMANDDISPATCHER_HPP
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -58,4 +58,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_COMMANDDISPATCHER_HPP
+#endif //CHARTIS_COMMANDDISPATCHER_HPP

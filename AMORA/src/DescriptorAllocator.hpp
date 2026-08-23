@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_DESCRIPTORALLOCATOR_HPP
-#define OPENMAVIS_DESCRIPTORALLOCATOR_HPP
+#ifndef CHARTIS_DESCRIPTORALLOCATOR_HPP
+#define CHARTIS_DESCRIPTORALLOCATOR_HPP
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -25,4 +25,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_DESCRIPTORALLOCATOR_HPP
+#endif //CHARTIS_DESCRIPTORALLOCATOR_HPP

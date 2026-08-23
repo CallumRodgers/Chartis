@@ -13,7 +13,7 @@
 #include "MainBar.hpp"
 #include "SideBar.hpp"
 
-using namespace mavis::interface;
+using namespace chartis::interface;
 
 static bool resetLayout = true;
 
@@ -45,7 +45,7 @@ UserInterface::UserInterface(const amora::ImGuiEngineData& data, const IconManag
     ImGui::ClearIniSettings();
 }
 
-void UserInterface::layout(OpenMaVisApplication* app) {
+void UserInterface::layout(ChartisApplication* app) {
     const UIContext context {
         .app = app,
         .iconManager = mIconManager
@@ -57,7 +57,7 @@ void UserInterface::layout(OpenMaVisApplication* app) {
     // SETTING UP DOCK SPACE //
     ///////////////////////////
 
-    const ImGuiID dockSpaceID = ImGui::GetID("OpenMaVis DockSpace");
+    const ImGuiID dockSpaceID = ImGui::GetID("Chartis DockSpace");
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
     if (ImGui::DockBuilderGetNode(dockSpaceID) == nullptr || resetLayout) {

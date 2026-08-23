@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_WINDOWPLATFORM_HPP
-#define OPENMAVIS_WINDOWPLATFORM_HPP
+#ifndef CHARTIS_WINDOWPLATFORM_HPP
+#define CHARTIS_WINDOWPLATFORM_HPP
 
 #include <cstdint>
 #include <memory>
@@ -13,13 +13,13 @@
 #include "AMORA/Platform.hpp"
 
 /**
- * The <code>platform</code> namespace encapsulates (most of) the platform code within OpenMaVis;
+ * The <code>platform</code> namespace encapsulates (most of) the platform code within Chartis;
  * at least the code that deals with window creation and user interaction.
  * The AMORA Engine also has a single platform-dependent class implementation, for the RenderSurface.
  * Since Vulkan is isolated in AMORA, the creation of a Vulkan surface from the platform window/surface
  * can't be done here.
  */
-namespace mavis::platform {
+namespace chartis::platform {
     ////////////////////////////////
     // BEGIN FORWARD DECLARATIONS //
     class Wayland;
@@ -88,4 +88,4 @@ namespace mavis::platform {
     };
 }
 
-#endif //OPENMAVIS_WINDOWPLATFORM_HPP
+#endif //CHARTIS_WINDOWPLATFORM_HPP

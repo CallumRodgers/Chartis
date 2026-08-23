@@ -91,7 +91,7 @@ namespace amora {
 
         void waitIdle() const;
 
-        ImTextureID loadIcon(resource_id id, const char* iconPath) const;
+        ImTextureID loadIcon(const resource_id& id, const char* iconPath) const;
 
     private:
         /// Holds the Vulkan instance and devices. Automatically initialised through
@@ -108,7 +108,7 @@ namespace amora {
         /// Handles the descriptors across the application, i.e. the shader bindings, their link
         /// with data buffers, etc.
         std::unique_ptr<DescriptorLayoutManager> mDescriptorManager;
-        /// Manages and owns all the global textures used by OpenMaVis.
+        /// Manages and owns all the global textures used by Chartis.
         std::unique_ptr<TextureManager> mTextureManager;
 
         std::unique_ptr<SemaphoreGroup> mPresentCompleteSemaphores;

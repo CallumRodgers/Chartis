@@ -47,7 +47,7 @@ Engine::Engine(const EngineInitInfo& initInfo) {
     mContext = std::make_unique<VulkanContext>();
 
     // With the context set up, we create a surface from the window where we may render.
-    AMORA_INFO("Creating rendering surface from GLFW...");
+    AMORA_INFO("Creating rendering surface...");
     mRenderSurface = std::make_unique<RenderSurface>(*mContext, initInfo.platformInfo);
     mRenderSurface->invalidateSize(initInfo.surfaceWidth, initInfo.surfaceHeight);
     AMORA_INFO("Setting up physical and logical devices...");
@@ -129,9 +129,8 @@ ImGuiEngineData Engine::beginInterfaceBackend() const {
     return data;
 }
 
-ImTextureID Engine::loadIcon(resource_id iconId, const char* iconPath) const {
-    AMORA_INFO("ICON ID: {}", iconId);
-    const StaticTexture& texture = mTextureManager->loadStaticTexture(*mGraphicsDispatcher, iconId, iconPath);
+ImTextureID Engine::loadIcon(const resource_id& id, const char* iconPath) const {
+    const StaticTexture& texture = mTextureManager->loadStaticTexture(*mGraphicsDispatcher, id, iconPath);
     return reinterpret_cast<ImTextureID>(ImGui_ImplVulkan_AddTexture(&**texture.getImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 }
 

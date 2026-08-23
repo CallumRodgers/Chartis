@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_APPLE_HPP
-#define OPENMAVIS_APPLE_HPP
+#ifndef CHARTIS_APPLE_HPP
+#define CHARTIS_APPLE_HPP
 
-namespace mavis::platform {
+namespace chartis::platform {
     class Apple {
     };
 }
 
-#endif //OPENMAVIS_APPLE_HPP
+#endif //CHARTIS_APPLE_HPP

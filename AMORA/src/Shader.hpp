@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_SHADER_HPP
-#define OPENMAVIS_SHADER_HPP
+#ifndef CHARTIS_SHADER_HPP
+#define CHARTIS_SHADER_HPP
 
 #include <map>
 #include <AMORA/config.hpp>
@@ -24,7 +24,7 @@ namespace amora {
     constexpr auto SHADER_ENTRY_POINT = "main";
 
     /**
-     * A <code>Shader</code> object in OpenMaVis is directly equivalent to a shader stage.
+     * A <code>Shader</code> object in Chartis is directly equivalent to a shader stage.
      * While Slang supports including multiple stages within a single file, the logic
      * for pipeline creation is just easier when 1 stage = 1 file, and it enables
      * easy modification for pipeline creation from user-created fragment shaders.
@@ -53,4 +53,4 @@ namespace amora {
     typedef std::map<ShaderStage, std::shared_ptr<Shader> > ShaderMap;
 }
 
-#endif //OPENMAVIS_SHADER_HPP
+#endif //CHARTIS_SHADER_HPP

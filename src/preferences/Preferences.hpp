@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_PREFERENCES_HPP
-#define OPENMAVIS_PREFERENCES_HPP
+#ifndef CHARTIS_PREFERENCES_HPP
+#define CHARTIS_PREFERENCES_HPP
 
 namespace mavis::preferences {
     
@@ -14,4 +14,4 @@ namespace mavis::preferences {
     };
 }
 
-#endif //OPENMAVIS_PREFERENCES_HPP
+#endif //CHARTIS_PREFERENCES_HPP

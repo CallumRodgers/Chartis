@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_AMORA_HPP
-#define OPENMAVIS_AMORA_HPP
+#ifndef CHARTIS_AMORA_HPP
+#define CHARTIS_AMORA_HPP
 
 #include "config.hpp"
 #include "Engine.hpp"
 #include "Scene2D.hpp"
 
-#endif //OPENMAVIS_AMORA_HPP
+#endif //CHARTIS_AMORA_HPP

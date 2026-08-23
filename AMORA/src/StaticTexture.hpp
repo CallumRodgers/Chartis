@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_TEXTURE_HPP
-#define OPENMAVIS_TEXTURE_HPP
+#ifndef CHARTIS_TEXTURE_HPP
+#define CHARTIS_TEXTURE_HPP
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -42,4 +42,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_TEXTURE_HPP
+#endif //CHARTIS_TEXTURE_HPP

@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_RENDERSURFACE_HPP
-#define OPENMAVIS_RENDERSURFACE_HPP
+#ifndef CHARTIS_RENDERSURFACE_HPP
+#define CHARTIS_RENDERSURFACE_HPP
 
 #include "VulkanContext.hpp"
 #include "AMORA/Platform.hpp"
@@ -54,4 +54,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_RENDERSURFACE_HPP
+#endif //CHARTIS_RENDERSURFACE_HPP

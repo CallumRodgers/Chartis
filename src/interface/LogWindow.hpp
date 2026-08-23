@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_LOGWINDOW_HPP
-#define OPENMAVIS_LOGWINDOW_HPP
+#ifndef CHARTIS_LOGWINDOW_HPP
+#define CHARTIS_LOGWINDOW_HPP
 #include "imgui.h"
 
-namespace mavis::interface {
+namespace chartis::interface {
     class LogWindow {
     public:
         void layout() {
@@ -21,4 +21,4 @@ namespace mavis::interface {
     };
 };
 
-#endif //OPENMAVIS_LOGWINDOW_HPP
+#endif //CHARTIS_LOGWINDOW_HPP

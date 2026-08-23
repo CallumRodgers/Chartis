@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_LOGGER_HPP
-#define OPENMAVIS_LOGGER_HPP
+#ifndef CHARTIS_LOGGER_HPP
+#define CHARTIS_LOGGER_HPP
 
 #include <quill/LogMacros.h>
 #include <quill/Logger.h>
@@ -24,4 +24,4 @@ namespace amora {
 #define AMORA_WARN(...) LOG_WARNING(logger, __VA_ARGS__)
 #define AMORA_ERROR(...) LOG_ERROR(logger, __VA_ARGS__)
 
-#endif //OPENMAVIS_LOGGER_HPP
+#endif //CHARTIS_LOGGER_HPP

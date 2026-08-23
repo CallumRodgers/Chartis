@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_GRAPHICSPIPELINE_HPP
-#define OPENMAVIS_GRAPHICSPIPELINE_HPP
+#ifndef CHARTIS_GRAPHICSPIPELINE_HPP
+#define CHARTIS_GRAPHICSPIPELINE_HPP
 
 #include "Pipeline.hpp"
 #include "Shader.hpp"
@@ -36,4 +36,4 @@ namespace amora::graphics {
     };
 }
 
-#endif //OPENMAVIS_GRAPHICSPIPELINE_HPP
+#endif //CHARTIS_GRAPHICSPIPELINE_HPP

@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_X11_HPP
-#define OPENMAVIS_X11_HPP
+#ifndef CHARTIS_X11_HPP
+#define CHARTIS_X11_HPP
 
-namespace mavis::platform {
+namespace chartis::platform {
     class X11 {
     };
 }
 
-#endif //OPENMAVIS_X11_HPP
+#endif //CHARTIS_X11_HPP

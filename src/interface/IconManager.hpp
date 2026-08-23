@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_ICONS_HPP
-#define OPENMAVIS_ICONS_HPP
+#ifndef CHARTIS_ICONS_HPP
+#define CHARTIS_ICONS_HPP
 
 #include <unordered_map>
 #include "imgui.h"
 #include "AMORA/AMORA.hpp"
 
-namespace mavis::interface {
+namespace chartis::interface {
     typedef ImTextureID IconImage;
 
     enum Icon {
@@ -49,4 +49,4 @@ namespace mavis::interface {
     };
 };
 
-#endif //OPENMAVIS_ICONS_HPP
+#endif //CHARTIS_ICONS_HPP

@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_VECTOR_UTILS_HPP
-#define OPENMAVIS_VECTOR_UTILS_HPP
+#ifndef CHARTIS_VECTOR_UTILS_HPP
+#define CHARTIS_VECTOR_UTILS_HPP
 
 #include <vector>
 
@@ -36,4 +36,4 @@ namespace amora::vector_utils {
     }
 }
 
-#endif //OPENMAVIS_VECTOR_UTILS_HPP
+#endif //CHARTIS_VECTOR_UTILS_HPP

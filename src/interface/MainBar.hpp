@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_MAINMENUBAR_HPP
-#define OPENMAVIS_MAINMENUBAR_HPP
+#ifndef CHARTIS_MAINMENUBAR_HPP
+#define CHARTIS_MAINMENUBAR_HPP
 
 #include <imgui.h>
 #include "dp.hpp"
-#include "OpenMaVisApplication.hpp"
+#include "ChartisApplication.hpp"
 #include "UIContext.hpp"
 
-namespace mavis::interface {
+namespace chartis::interface {
     class MainBar {
     public:
         void layout(const UIContext& context) {
@@ -45,7 +45,7 @@ namespace mavis::interface {
                 if (mIsMainMenuShowing) {
                     ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 10.0f);
 
-                    if (ImGui::BeginMenu("OpenMaVis")) {
+                    if (ImGui::BeginMenu("Chartis")) {
 
                         ImGui::EndMenu();
                     }
@@ -79,7 +79,7 @@ namespace mavis::interface {
                         }
 
                         if (ImGui::ImageButton("AddTab", iconManager.getIconImage(PLUS), windowButtonsSize, uv0, uv1)) {
-                            MAVIS_INFO("NEW TAB!");
+                            CHARTIS_INFO("NEW TAB!");
                         }
 
                         ImGui::EndTabBar();
@@ -144,4 +144,4 @@ namespace mavis::interface {
     };
 }
 
-#endif //OPENMAVIS_MAINMENUBAR_HPP
+#endif //CHARTIS_MAINMENUBAR_HPP

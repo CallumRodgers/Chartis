@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_RENDERIZABLEOBJECT_HPP
-#define OPENMAVIS_RENDERIZABLEOBJECT_HPP
+#ifndef CHARTIS_RENDERIZABLEOBJECT_HPP
+#define CHARTIS_RENDERIZABLEOBJECT_HPP
 
 #include "algebra_types.hpp"
 
@@ -32,4 +32,4 @@ namespace amora::scene {
 
 }
 
-#endif //OPENMAVIS_RENDERIZABLEOBJECT_HPP
+#endif //CHARTIS_RENDERIZABLEOBJECT_HPP

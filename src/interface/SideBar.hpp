@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_SIDEBAR_HPP
-#define OPENMAVIS_SIDEBAR_HPP
+#ifndef CHARTIS_SIDEBAR_HPP
+#define CHARTIS_SIDEBAR_HPP
 
 #include <imgui.h>
 #include "dp.hpp"
 #include "IconManager.hpp"
 #include "LogWindow.hpp"
 
-namespace mavis::interface {
+namespace chartis::interface {
     class SideBar {
     public:
         static constexpr auto WINDOW_NAME = "SideBar";
@@ -58,4 +58,4 @@ namespace mavis::interface {
     };
 };
 
-#endif //OPENMAVIS_SIDEBAR_HPP
+#endif //CHARTIS_SIDEBAR_HPP

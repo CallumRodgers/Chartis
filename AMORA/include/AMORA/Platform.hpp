@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_PLATFORM_HPP
-#define OPENMAVIS_PLATFORM_HPP
+#ifndef CHARTIS_PLATFORM_HPP
+#define CHARTIS_PLATFORM_HPP
 
 namespace amora {
     enum class Platform {
@@ -20,4 +20,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_PLATFORM_HPP
+#endif //CHARTIS_PLATFORM_HPP

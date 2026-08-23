@@ -18,7 +18,7 @@
 using namespace amora;
 
 /**
- * Retrieves all the required extensions that OpenMaVis needs.
+ * Retrieves all the required extensions that Chartis needs.
  * @return a vector with
  */
 std::vector<const char*> getRequiredInstanceExtensions() {

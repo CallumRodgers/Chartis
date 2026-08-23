@@ -8,12 +8,12 @@
 #include <AMORA/algebra_types.hpp>
 #include <GLFW/glfw3.h>
 
-#include "../OpenMaVisApplication.hpp"
+#include "../ChartisApplication.hpp"
 #include "AMORA/logger.hpp"
 
 #define SCREEN_TO_NDC(x, w) ((2.f * x / w) - 1.f)
 
-using namespace mavis;
+using namespace chartis;
 
 void EventHandler2D::processKeyEvent(Key key, Action action, Mods mods) {
     // Shift key bindings.

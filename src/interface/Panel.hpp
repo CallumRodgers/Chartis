@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_PANEL_HPP
-#define OPENMAVIS_PANEL_HPP
+#ifndef CHARTIS_PANEL_HPP
+#define CHARTIS_PANEL_HPP
 
-#endif //OPENMAVIS_PANEL_HPP
+#endif //CHARTIS_PANEL_HPP

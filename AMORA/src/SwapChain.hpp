@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_SWAPCHAIN_HPP
-#define OPENMAVIS_SWAPCHAIN_HPP
+#ifndef CHARTIS_SWAPCHAIN_HPP
+#define CHARTIS_SWAPCHAIN_HPP
 
 #include "RenderSurface.hpp"
 
@@ -45,4 +45,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_SWAPCHAIN_HPP
+#endif //CHARTIS_SWAPCHAIN_HPP

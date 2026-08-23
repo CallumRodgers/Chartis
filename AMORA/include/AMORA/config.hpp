@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_CONFIG_HPP
-#define OPENMAVIS_CONFIG_HPP
+#ifndef CHARTIS_CONFIG_HPP
+#define CHARTIS_CONFIG_HPP
 
 #include <cstdint>
 #include <vector>
@@ -16,7 +16,7 @@ namespace amora::config {
 
     namespace info {
         /// The name of our application, given to the <code>vk::raii::Instance</code> object.
-        constexpr auto APPLICATION_NAME = "OpenMaVis";
+        constexpr auto APPLICATION_NAME = "Chartis";
         /// The current app version. It may be different from the engine version.
         constexpr auto APPLICATION_VERSION = MAKE_VERSION(0, 1, 0);
         /// "Official" name for this Vulkan engine, given to the <code>vk::raii::Instance</code> object.
@@ -57,4 +57,4 @@ namespace amora::config {
 
 }
 
-#endif //OPENMAVIS_CONFIG_HPP
+#endif //CHARTIS_CONFIG_HPP

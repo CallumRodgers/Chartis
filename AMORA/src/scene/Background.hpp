@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_BACKGROUND_HPP
-#define OPENMAVIS_BACKGROUND_HPP
+#ifndef CHARTIS_BACKGROUND_HPP
+#define CHARTIS_BACKGROUND_HPP
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -22,4 +22,4 @@ namespace amora::scene {
     };
 }
 
-#endif //OPENMAVIS_BACKGROUND_HPP
+#endif //CHARTIS_BACKGROUND_HPP

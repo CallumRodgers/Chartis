@@ -3,22 +3,22 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_USERINTERFACE_HPP
-#define OPENMAVIS_USERINTERFACE_HPP
+#ifndef CHARTIS_USERINTERFACE_HPP
+#define CHARTIS_USERINTERFACE_HPP
 
 #include <AMORA/ImGuiEngineData.hpp>
 
 #include "IconManager.hpp"
 #include "MainBar.hpp"
-#include "OpenMaVisApplication.hpp"
+#include "ChartisApplication.hpp"
 #include "SideBar.hpp"
 
-namespace mavis::interface {
+namespace chartis::interface {
     class UserInterface {
     public:
         explicit UserInterface(const amora::ImGuiEngineData& data, const IconManager& iconManager);
 
-        void layout(OpenMaVisApplication* app);
+        void layout(ChartisApplication* app);
 
     private:
         const IconManager& mIconManager;
@@ -28,4 +28,4 @@ namespace mavis::interface {
     };
 }
 
-#endif //OPENMAVIS_USERINTERFACE_HPP
+#endif //CHARTIS_USERINTERFACE_HPP

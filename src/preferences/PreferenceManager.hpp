@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_PREFERENCEMANAGER_HPP
-#define OPENMAVIS_PREFERENCEMANAGER_HPP
+#ifndef CHARTIS_PREFERENCEMANAGER_HPP
+#define CHARTIS_PREFERENCEMANAGER_HPP
 
-namespace mavis::preferences {
+namespace chartis::preferences {
 
 
     class PreferenceManager {
     };
 }
 
-#endif //OPENMAVIS_PREFERENCEMANAGER_HPP
+#endif //CHARTIS_PREFERENCEMANAGER_HPP

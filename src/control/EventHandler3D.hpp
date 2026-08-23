@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_EVENTHANDLER3D_HPP
-#define OPENMAVIS_EVENTHANDLER3D_HPP
+#ifndef CHARTIS_EVENTHANDLER3D_HPP
+#define CHARTIS_EVENTHANDLER3D_HPP
 
-namespace mavis {
+namespace chartis {
     class EventHandler3D {
 
     };
 }
 
-#endif //OPENMAVIS_EVENTHANDLER3D_HPP
+#endif //CHARTIS_EVENTHANDLER3D_HPP

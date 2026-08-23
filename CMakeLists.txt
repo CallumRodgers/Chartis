@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.1)
-project(OpenMaVis LANGUAGES C CXX)
+project(Chartis LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -87,8 +87,8 @@ add_subdirectory(AMORA)
 
 set(SOURCES src/main.cpp
         # Sources
-        src/OpenMaVisApplication.hpp
-        src/OpenMaVisApplication.cpp
+        src/ChartisApplication.hpp
+        src/ChartisApplication.cpp
         src/file_utils.hpp
         src/key_converter.hpp
 
@@ -136,18 +136,17 @@ endif ()
 # Linking sources, modules, and libraries to executable.
 # =========================================
 
-add_executable(OpenMaVis ${SOURCES})
-add_dependencies(OpenMaVis GraphicsShaders)
+add_executable(Chartis ${SOURCES})
 
-target_link_libraries(OpenMaVis PRIVATE AMORA quill::quill tomlplusplus::tomlplusplus)
-target_include_directories(OpenMaVis PRIVATE src libs/imgui libs/stb_image AMORA/include ${CMAKE_CURRENT_BINARY_DIR}/xdg)
+target_link_libraries(Chartis PRIVATE AMORA quill::quill tomlplusplus::tomlplusplus)
+target_include_directories(Chartis PRIVATE src libs/imgui libs/stb_image AMORA/include ${CMAKE_CURRENT_BINARY_DIR}/xdg)
 
 if (Linux)
-    target_link_libraries(OpenMaVis PRIVATE ${WAYLAND_CLIENT_LIBRARY})
+    target_link_libraries(Chartis PRIVATE ${WAYLAND_CLIENT_LIBRARY})
 endif ()
 
-add_custom_command(TARGET OpenMaVis PRE_BUILD
+add_custom_command(TARGET Chartis PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/res"
-        $<TARGET_FILE_DIR:OpenMaVis>/res
+        $<TARGET_FILE_DIR:Chartis>/res
 )

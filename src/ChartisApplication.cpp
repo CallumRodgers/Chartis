@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#include "OpenMaVisApplication.hpp"
+#include "ChartisApplication.hpp"
 
 #include "interface/UserInterface.hpp"
 #include "backends/imgui_impl_glfw.h"
@@ -14,9 +14,9 @@
 #include "key_converter.hpp"
 #include "interface/IconManager.hpp"
 
-using namespace mavis;
+using namespace chartis;
 
-OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv)
+ChartisApplication::ChartisApplication(int argc, char** argv)
     : mEventHandler2D(mNativeWindow)
         //mEventHandler3D(mWindow),
 {
@@ -106,7 +106,7 @@ OpenMaVisApplication::OpenMaVisApplication(int argc, char** argv)
     //createCursors(mWindow);
 }
 
-void OpenMaVisApplication::run() {
+void ChartisApplication::run() {
     amora::Engine::startLogging();
 
     auto [windowWidth, windowHeight] = mNativeWindow.getWindowSize();

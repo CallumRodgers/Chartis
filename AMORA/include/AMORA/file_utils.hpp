@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_FILE_UTILS_HPP
-#define OPENMAVIS_FILE_UTILS_HPP
+#ifndef CHARTIS_FILE_UTILS_HPP
+#define CHARTIS_FILE_UTILS_HPP
 
 #include <stb_image.h>
 #include <string>
@@ -21,4 +21,4 @@ namespace amora::file_utils {
     }
 }
 
-#endif //OPENMAVIS_FILE_UTILS_HPP
+#endif //CHARTIS_FILE_UTILS_HPP

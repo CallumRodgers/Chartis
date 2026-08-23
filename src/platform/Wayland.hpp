@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_WAYLAND_HPP
-#define OPENMAVIS_WAYLAND_HPP
+#ifndef CHARTIS_WAYLAND_HPP
+#define CHARTIS_WAYLAND_HPP
 
 #include <string>
 
@@ -31,7 +31,7 @@ struct zxdg_toplevel_decoration_v1;
 // END FORWARD DECLARATIONS //
 //////////////////////////////
 
-namespace mavis::platform {
+namespace chartis::platform {
     /// Wayland-specific platform code.
     class Wayland {
     public:
@@ -113,4 +113,4 @@ namespace mavis::platform {
     };
 }
 
-#endif //OPENMAVIS_WAYLAND_HPP
+#endif //CHARTIS_WAYLAND_HPP

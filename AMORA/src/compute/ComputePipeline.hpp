@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_COMPUTEPIPELINE_HPP
-#define OPENMAVIS_COMPUTEPIPELINE_HPP
+#ifndef CHARTIS_COMPUTEPIPELINE_HPP
+#define CHARTIS_COMPUTEPIPELINE_HPP
 
 #include "Pipeline.hpp"
 
@@ -14,4 +14,4 @@ namespace amora::Compute {
     };
 }
 
-#endif //OPENMAVIS_COMPUTEPIPELINE_HPP
+#endif //CHARTIS_COMPUTEPIPELINE_HPP

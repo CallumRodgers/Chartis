@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_RES_ID_HPP
-#define OPENMAVIS_RES_ID_HPP
+#ifndef CHARTIS_RES_ID_HPP
+#define CHARTIS_RES_ID_HPP
 
 typedef std::string resource_id;
 
-#endif //OPENMAVIS_RES_ID_HPP
+#endif //CHARTIS_RES_ID_HPP

@@ -6,21 +6,21 @@
 #include <quill/LogMacros.h>
 #include <quill/SimpleSetup.h>
 
-#include "OpenMaVisApplication.hpp"
+#include "ChartisApplication.hpp"
 
 int main(const int argc, char *argv[]) {
-    mavis::beginLogging();
+    chartis::beginLogging();
 
-    MAVIS_INFO("Running OpenMaVis v{}", mavis::APPLICATION_VERSION);
+    CHARTIS_INFO("Running Chartis v{}", chartis::APPLICATION_VERSION);
 
     try {
-        mavis::OpenMaVisApplication app(argc, argv);
+        chartis::ChartisApplication app(argc, argv);
         app.run();
     } catch (std::exception& e) {
-        MAVIS_ERROR("Exception occurred during runtime: {}", e.what());
-        mavis::endLogging();
+        CHARTIS_ERROR("Exception occurred during runtime: {}", e.what());
+        chartis::endLogging();
         return EXIT_FAILURE;
     }
-    mavis::endLogging();
+    chartis::endLogging();
     return EXIT_SUCCESS;
 }

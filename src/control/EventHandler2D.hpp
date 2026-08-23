@@ -3,15 +3,15 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_EVENTHANDLER2D_HPP
-#define OPENMAVIS_EVENTHANDLER2D_HPP
+#ifndef CHARTIS_EVENTHANDLER2D_HPP
+#define CHARTIS_EVENTHANDLER2D_HPP
 
 #include <AMORA/Scene2D.hpp>
 #include <GLFW/glfw3.h>
 
 #include "platform/NativeWindow.hpp"
 
-namespace mavis {
+namespace chartis {
     /**
      *
      */
@@ -65,4 +65,4 @@ namespace mavis {
     };
 }
 
-#endif //OPENMAVIS_EVENTHANDLER2D_HPP
+#endif //CHARTIS_EVENTHANDLER2D_HPP

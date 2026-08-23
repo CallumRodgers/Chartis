@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_WINDOWS_HPP
-#define OPENMAVIS_WINDOWS_HPP
+#ifndef CHARTIS_WINDOWS_HPP
+#define CHARTIS_WINDOWS_HPP
 
-namespace mavis::platform {
+namespace chartis::platform {
     class Windows {
     };
 }
 
-#endif //OPENMAVIS_WINDOWS_HPP
+#endif //CHARTIS_WINDOWS_HPP

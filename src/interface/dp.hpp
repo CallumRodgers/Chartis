@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_DP_HPP
-#define OPENMAVIS_DP_HPP
+#ifndef CHARTIS_DP_HPP
+#define CHARTIS_DP_HPP
 
-namespace mavis::interface {
+namespace chartis::interface {
     class dp {
     public:
         float value;
@@ -38,4 +38,4 @@ namespace mavis::interface {
     }
 }
 
-#endif //OPENMAVIS_DP_HPP
+#endif //CHARTIS_DP_HPP

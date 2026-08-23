@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_FRAMEGROUP_HPP
-#define OPENMAVIS_FRAMEGROUP_HPP
+#ifndef CHARTIS_FRAMEGROUP_HPP
+#define CHARTIS_FRAMEGROUP_HPP
 
 #include <vector>
 #include "config.hpp"
@@ -18,4 +18,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_FRAMEGROUP_HPP
+#endif //CHARTIS_FRAMEGROUP_HPP

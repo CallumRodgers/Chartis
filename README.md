@@ -1,11 +1,11 @@
-# OpenMaVis (under construction)
+# Chartis (under construction)
 
-**Open** **Ma**thematics **Vis**ualiser is a [Vulkan](https://www.vulkan.org/)-based graphics software for 
+**Chartis** is a [Vulkan](https://www.vulkan.org/)-based graphics software for 
 real-time mathematical plotting and visualisation. It targets performance and visual customisation rather 
 than numerical precision, and as such is not meant to replace production-grade numerical calculators.
 Read [Installation](#installation) to see how to install the program on your machine.
 
-OpenMaVis lets you:
+Chartis lets you:
 * Create scenes in either 2D or 3D, real or complex;
 * Control the view with all possible degrees of freedom: translating (moving), uniform scaling (zooming in/out), 
 rotating, shearing, and non-uniform scaling individual axes;
@@ -17,18 +17,18 @@ with [TeX](https://en.wikipedia.org/wiki/TeX)-like syntax;
 * Define your own fragment shader for every object in a scene and even the background;
 * And much more.
 
-OpenMaVis also makes use of several open-source libraries to allow for convenient features:
+Chartis also makes use of several open-source libraries to allow for convenient features:
 * [FFmpeg](https://ffmpeg.org/): for quick and easy exporting of your animated scenes;
 * [libqalculate](https://github.com/Qalculate/libqalculate): for an incredible general purpose calculator;
 
-A complete list of the libraries and APIs used by OpenMaVis can be found [here](#third-party-libraries).
+A complete list of the libraries and APIs used by Chartis can be found [here](#third-party-libraries).
 
 ### AMORA Engine
 
 ***
 
 The **A**nimated **M**athematical **O**bject **R**endering **A**rchitecture is the name of the custom 
-Vulkan engine that powers OpenMaVis.
+Vulkan engine that powers Chartis.
 
 
 ### Installation
@@ -40,7 +40,7 @@ Vulkan engine that powers OpenMaVis.
 
 ***
 
-To bring OpenMaVis to life, the following libraries were used:
+To bring Chartis to life, the following libraries were used:
 * [Vulkan](https://www.vulkan.org/) : As the main graphics API;
 * [Quill](https://github.com/odygrd/quill) : For asynchronous logging;
 * [Dear ImGui](https://github.com/ocornut/imgui) : For building the user interface with the Vulkan backend;

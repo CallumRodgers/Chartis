@@ -10,7 +10,7 @@
 #include "Windows.hpp"
 #include "Apple.hpp"
 
-using namespace mavis::platform;
+using namespace chartis::platform;
 
 #if defined(__linux__) || defined(__FreeBSD__)
 ///////////////////////////////////////////////

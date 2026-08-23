@@ -3,17 +3,17 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_UICONTEXT_HPP
-#define OPENMAVIS_UICONTEXT_HPP
+#ifndef CHARTIS_UICONTEXT_HPP
+#define CHARTIS_UICONTEXT_HPP
 
 #include "IconManager.hpp"
-#include "OpenMaVisApplication.hpp"
+#include "ChartisApplication.hpp"
 
-namespace mavis::interface {
+namespace chartis::interface {
     struct UIContext {
-        OpenMaVisApplication* app;
+        ChartisApplication* app;
         const IconManager& iconManager;
     };
 }
 
-#endif //OPENMAVIS_UICONTEXT_HPP
+#endif //CHARTIS_UICONTEXT_HPP

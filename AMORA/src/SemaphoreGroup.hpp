@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_SEMAPHOREGROUP_HPP
-#define OPENMAVIS_SEMAPHOREGROUP_HPP
+#ifndef CHARTIS_SEMAPHOREGROUP_HPP
+#define CHARTIS_SEMAPHOREGROUP_HPP
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -24,4 +24,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_SEMAPHOREGROUP_HPP
+#endif //CHARTIS_SEMAPHOREGROUP_HPP

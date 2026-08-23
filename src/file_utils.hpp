@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_FILE_UTILS_HPP
-#define OPENMAVIS_FILE_UTILS_HPP
+#ifndef CHARTIS_FILE_UTILS_HPP
+#define CHARTIS_FILE_UTILS_HPP
 
 #include <stb_image.h>
 #include <string>
 
-namespace mavis::file_utils {
+namespace chartis::file_utils {
     static std::tuple<int, int, unsigned char*> loadImage(const std::string& filePath) {
         int width, height, channels;
         stbi_uc* data = stbi_load(filePath.data(), &width, &height, &channels, 4);
@@ -21,4 +21,4 @@ namespace mavis::file_utils {
     }
 }
 
-#endif //OPENMAVIS_FILE_UTILS_HPP
+#endif //CHARTIS_FILE_UTILS_HPP

@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_UNIFORMBUFFER_HPP
-#define OPENMAVIS_UNIFORMBUFFER_HPP
+#ifndef CHARTIS_UNIFORMBUFFER_HPP
+#define CHARTIS_UNIFORMBUFFER_HPP
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -46,4 +46,4 @@ namespace amora {
     template class UniformBuffer<scene::Scene::CameraUBO>;
 }
 
-#endif //OPENMAVIS_UNIFORMBUFFER_HPP
+#endif //CHARTIS_UNIFORMBUFFER_HPP

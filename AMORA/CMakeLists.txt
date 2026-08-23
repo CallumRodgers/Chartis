@@ -100,6 +100,8 @@ compile_shaders(GraphicsShaders ${CMAKE_BINARY_DIR} ${GRAPHICS_SHADERS_SOURCES})
 # =========================================
 
 add_library(AMORA SHARED)
+add_dependencies(AMORA GraphicsShaders)
+
 target_sources(AMORA
         PUBLIC
         include/AMORA/AMORA.hpp
@@ -184,7 +186,7 @@ target_include_directories(AMORA
         PRIVATE src ../libs/imgui ../libs/stb_image
 )
 
-# This saves us from having to define these macros every time we include a GLFW/Vulkan header.
+# This saves us from having to define these macros every time we include a Vulkan header.
 target_compile_definitions(AMORA PRIVATE
         VULKAN_HPP_NO_STRUCT_SETTERS
         VULKAN_HPP_NO_STRUCT_CONSTRUCTORS

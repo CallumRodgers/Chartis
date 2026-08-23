@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_PIPELINE_HPP
-#define OPENMAVIS_PIPELINE_HPP
+#ifndef CHARTIS_PIPELINE_HPP
+#define CHARTIS_PIPELINE_HPP
 
 #include <map>
 
@@ -40,4 +40,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_PIPELINE_HPP
+#endif //CHARTIS_PIPELINE_HPP

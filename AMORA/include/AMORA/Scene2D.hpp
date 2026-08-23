@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_SCENE2D_HPP
-#define OPENMAVIS_SCENE2D_HPP
+#ifndef CHARTIS_SCENE2D_HPP
+#define CHARTIS_SCENE2D_HPP
 
 #include <map>
 
@@ -92,4 +92,4 @@ namespace amora::scene {
     };
 }
 
-#endif //OPENMAVIS_SCENE2D_HPP
+#endif //CHARTIS_SCENE2D_HPP

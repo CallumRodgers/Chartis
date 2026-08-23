@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_KEY_CONVERTER_HPP
-#define OPENMAVIS_KEY_CONVERTER_HPP
+#ifndef CHARTIS_KEY_CONVERTER_HPP
+#define CHARTIS_KEY_CONVERTER_HPP
 
 #include <imgui.h>
 #include "platform/UserInput.hpp"
 
-namespace mavis {
+namespace chartis {
     static ImGuiKey keyToImGuiKey(Key key) {
         switch (key) {
             case Key::TAB: return ImGuiKey_Tab;
@@ -136,4 +136,4 @@ namespace mavis {
     }
 }
 
-#endif //OPENMAVIS_KEY_CONVERTER_HPP
+#endif //CHARTIS_KEY_CONVERTER_HPP

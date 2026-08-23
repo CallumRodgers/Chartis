@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_COORDINATEGRID_HPP
-#define OPENMAVIS_COORDINATEGRID_HPP
+#ifndef CHARTIS_COORDINATEGRID_HPP
+#define CHARTIS_COORDINATEGRID_HPP
 
 #include "AMORA/algebra_types.hpp"
 #include "graphics/GraphicsPipeline.hpp"
@@ -26,4 +26,4 @@ namespace amora::scene {
     };
 }
 
-#endif //OPENMAVIS_COORDINATEGRID_HPP
+#endif //CHARTIS_COORDINATEGRID_HPP

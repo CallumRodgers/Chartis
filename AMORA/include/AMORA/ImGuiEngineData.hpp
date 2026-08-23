@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_IMGUIENGINEDATA_HPP
-#define OPENMAVIS_IMGUIENGINEDATA_HPP
+#ifndef CHARTIS_IMGUIENGINEDATA_HPP
+#define CHARTIS_IMGUIENGINEDATA_HPP
 
 #include <imgui.h>
 
@@ -18,4 +18,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_IMGUIENGINEDATA_HPP
+#endif //CHARTIS_IMGUIENGINEDATA_HPP

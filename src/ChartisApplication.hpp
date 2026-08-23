@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_OPENMAVISAPPLICATION_HPP
-#define OPENMAVIS_OPENMAVISAPPLICATION_HPP
+#ifndef CHARTIS_CHARTISAPPLICATION_HPP
+#define CHARTIS_CHARTISAPPLICATION_HPP
 
 #include <quill/Backend.h>
 #include <quill/Frontend.h>
@@ -20,14 +20,14 @@
 #ifdef NDEBUG
 #define MAVIS_DEBUG(...)
 #else
-#define MAVIS_DEBUG(...) LOG_DEBUG(mavis::logger, __VA_ARGS__)
+#define CHARTIS_DEBUG(...) LOG_DEBUG(chartis::logger, __VA_ARGS__)
 #endif
 
-#define MAVIS_INFO(...) LOG_INFO(mavis::logger, __VA_ARGS__)
-#define MAVIS_WARN(...) LOG_WARNING(mavis::logger, __VA_ARGS__)
-#define MAVIS_ERROR(...) LOG_ERROR(mavis::logger, __VA_ARGS__)
+#define CHARTIS_INFO(...) LOG_INFO(chartis::logger, __VA_ARGS__)
+#define CHARTIS_WARN(...) LOG_WARNING(chartis::logger, __VA_ARGS__)
+#define CHARTIS_ERROR(...) LOG_ERROR(chartis::logger, __VA_ARGS__)
 
-namespace mavis {
+namespace chartis {
     constexpr auto APPLICATION_VERSION = "0.1.0";
 
     /// Global logger for the engine.
@@ -38,21 +38,21 @@ namespace mavis {
         options.sleep_duration = std::chrono::milliseconds{50};
         quill::Backend::start(options);
 
-        const auto sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("OpenMaVis_console_sink");
-        logger = quill::Frontend::create_or_get_logger("OpenMaVis", sink);
+        const auto sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("Chartis_console_sink");
+        logger = quill::Frontend::create_or_get_logger("Chartis", sink);
 
-        MAVIS_INFO("Started OpenMaVis logging");
+        CHARTIS_INFO("Started Chartis logging");
     }
 
     static void endLogging() {
-        MAVIS_INFO("Stopped OpenMaVis logging");
+        CHARTIS_INFO("Stopped Chartis logging");
         logger->flush_log();
         quill::Backend::stop();
     }
 
-    class OpenMaVisApplication {
+    class ChartisApplication {
     public:
-        OpenMaVisApplication(int argc, char** argv);
+        ChartisApplication(int argc, char** argv);
 
         void run();
 
@@ -74,4 +74,4 @@ namespace mavis {
     };
 }
 
-#endif //OPENMAVIS_OPENMAVISAPPLICATION_HPP
+#endif //CHARTIS_CHARTISAPPLICATION_HPP

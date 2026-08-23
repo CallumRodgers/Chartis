@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_WAYLAND_CONVERTER_HPP
-#define OPENMAVIS_WAYLAND_CONVERTER_HPP
+#ifndef CHARTIS_WAYLAND_CONVERTER_HPP
+#define CHARTIS_WAYLAND_CONVERTER_HPP
 
 #include <cstdint>
 #include <linux/input-event-codes.h>
 #include "UserInput.hpp"
 
-namespace mavis::platform {
+namespace chartis::platform {
     //////////////////////
     // INPUT CONVERTERS //
     //////////////////////
@@ -71,4 +71,4 @@ namespace mavis::platform {
     }
 }
 
-#endif //OPENMAVIS_WAYLAND_CONVERTER_HPP
+#endif //CHARTIS_WAYLAND_CONVERTER_HPP

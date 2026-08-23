@@ -6,7 +6,7 @@
 #include "IconManager.hpp"
 #include <string>
 
-using namespace mavis::interface;
+using namespace chartis::interface;
 
 void IconManager::put(Icon icon, const char* filePath) {
     mIcons.emplace(icon, mEngine.loadIcon(getId(icon), filePath));

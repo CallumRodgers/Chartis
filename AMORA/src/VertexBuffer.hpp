@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef OPENMAVIS_VERTEXBUFFER_HPP
-#define OPENMAVIS_VERTEXBUFFER_HPP
+#ifndef CHARTIS_VERTEXBUFFER_HPP
+#define CHARTIS_VERTEXBUFFER_HPP
 
 namespace amora {
     class VertexBuffer {
@@ -12,4 +12,4 @@ namespace amora {
     };
 }
 
-#endif //OPENMAVIS_VERTEXBUFFER_HPP
+#endif //CHARTIS_VERTEXBUFFER_HPP
