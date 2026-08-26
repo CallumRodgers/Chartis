@@ -9,8 +9,8 @@
 #include <cstdint>
 #include <memory>
 
+#include "Platform.hpp"
 #include "UserInput.hpp"
-#include "AMORA/Platform.hpp"
 
 /**
  * The <code>platform</code> namespace encapsulates (most of) the platform code within Chartis;
@@ -19,7 +19,7 @@
  * Since Vulkan is isolated in AMORA, the creation of a Vulkan surface from the platform window/surface
  * can't be done here.
  */
-namespace chartis::platform {
+namespace chartis::platypus {
     ////////////////////////////////
     // BEGIN FORWARD DECLARATIONS //
     class Wayland;
@@ -34,7 +34,7 @@ namespace chartis::platform {
         NativeWindow();
         ~NativeWindow();
 
-        [[nodiscard]] const amora::NativePlatformInfo& getNativePlatformInfo() const { return mPlatformInfo; }
+        [[nodiscard]] const NativePlatformInfo& getNativePlatformInfo() const { return mPlatformInfo; }
 
         /////////////////////////////
         // WINDOW USER INTERACTION //
@@ -74,7 +74,7 @@ namespace chartis::platform {
         void setWindowResizeCallback(const window_resize_callback& callback) const;
 
     private:
-        amora::NativePlatformInfo mPlatformInfo;
+        NativePlatformInfo mPlatformInfo;
 
         std::unique_ptr<Wayland> mWayland;
         std::unique_ptr<X11> mX11;

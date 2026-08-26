@@ -5,22 +5,24 @@
 
 #include "Wayland.hpp"
 
-#include "ChartisApplication.hpp"
+#include "platypus/UserInput.hpp"
 
 #include <cstring>
+#include <poll.h>
 #include <stdexcept>
+#include <unistd.h>
 #include <wayland-client-protocol.h>
 #include <wayland-client.h>
 #include <xdg-decoration-client-protocol.h>
 #include <xdg-shell-client-protocol.h>
 #include <linux/input-event-codes.h>
-#include <poll.h>
 
-#include "file_utils.hpp"
+#include "platform_file_utils.hpp"
+#include "platform_logger.hpp"
 #include "wayland_converter.hpp"
 
 using namespace chartis;
-using namespace ::platform;
+using namespace ::platypus;
 
 //////////////////////////////
 // STATIC UTILITY FUNCTIONS //
@@ -296,7 +298,7 @@ void Wayland::handleKeyboardListener() {
 /////////////////////////////////
 
 Wayland::Wayland() {
-    CHARTIS_INFO("Starting Wayland window creation.");
+    PLATYPUS_INFO("Starting Wayland window creation.");
     // Connecting to Wayland compositor.
     m_display = wl_display_connect(nullptr);
     if (m_display == nullptr) {

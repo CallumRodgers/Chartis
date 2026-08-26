@@ -3,14 +3,36 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#include "NativeWindow.hpp"
+#include "platypus/NativeWindow.hpp"
+
+#include <quill/Backend.h>
+#include <quill/Frontend.h>
+#include <quill/sinks/ConsoleSink.h>
 
 #include "Wayland.hpp"
 #include "X11.hpp"
 #include "Windows.hpp"
 #include "Apple.hpp"
 
-using namespace chartis::platform;
+#include "platform_logger.hpp"
+
+using namespace chartis::platypus;
+
+static void beginLogging() {
+    quill::BackendOptions options;
+    options.sleep_duration = std::chrono::milliseconds{50};
+    quill::Backend::start(options);
+
+    const auto sink = quill::Frontend::create_or_get_sink<quill::ConsoleSink>("Platypus_console_sink");
+    logger = quill::Frontend::create_or_get_logger("Platypus", sink);
+
+    PLATYPUS_INFO("Started Platypus logging");
+}
+
+static void endLogging() {
+    PLATYPUS_INFO("Stopped Platypus logging");
+    logger->flush_log();
+}
 
 #if defined(__linux__) || defined(__FreeBSD__)
 ///////////////////////////////////////////////
@@ -29,11 +51,13 @@ void isWaylandCheck() {
 }
 
 NativeWindow::NativeWindow() {
+    beginLogging();
+
     isWaylandCheck();
     if (isWayland) {
         mWayland = std::make_unique<Wayland>();
         mPlatformInfo = {
-            .platform = amora::Platform::Wayland,
+            .platform = Platform::Wayland,
             .windowHandle = mWayland->getSurface(),
             .displayHandle = mWayland->getDisplay()
         };
@@ -42,7 +66,9 @@ NativeWindow::NativeWindow() {
     }
 }
 
-NativeWindow::~NativeWindow() = default;
+NativeWindow::~NativeWindow() {
+    endLogging();
+}
 
 void NativeWindow::setPointerEnterCallback(const pointer_enter_callback& callback) const {
     mWayland->mPointerEnterCallback = callback;

@@ -15,7 +15,7 @@
 #include "control/EventHandler2D.hpp"
 #include "control/EventHandler3D.hpp"
 
-#include "platform/NativeWindow.hpp"
+#include "platypus/NativeWindow.hpp"
 
 #ifdef NDEBUG
 #define MAVIS_DEBUG(...)
@@ -59,7 +59,7 @@ namespace chartis {
         void invalidateSurface() { mSurfaceInvalidated = true; }
         void invalidateRender() { mRenderInvalidated = true; }
 
-        platform::NativeWindow mNativeWindow;
+        platypus::NativeWindow mNativeWindow;
 
         EventHandler2D mEventHandler2D;
         EventHandler3D mEventHandler3D;

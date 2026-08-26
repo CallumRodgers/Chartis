@@ -8,7 +8,7 @@
 
 #include <string>
 
-#include "UserInput.hpp"
+#include "../include/platypus/UserInput.hpp"
 #include <GLFW/glfw3.h>
 
 ////////////////////////////////
@@ -31,7 +31,7 @@ struct zxdg_toplevel_decoration_v1;
 // END FORWARD DECLARATIONS //
 //////////////////////////////
 
-namespace chartis::platform {
+namespace chartis::platypus {
     /// Wayland-specific platform code.
     class Wayland {
     public:

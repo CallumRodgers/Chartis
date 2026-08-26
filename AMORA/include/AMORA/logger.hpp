@@ -6,8 +6,8 @@
 #ifndef CHARTIS_LOGGER_HPP
 #define CHARTIS_LOGGER_HPP
 
-#include <quill/LogMacros.h>
 #include <quill/Logger.h>
+#include <quill/LogMacros.h>
 
 namespace amora {
     /// Global logger for the engine.

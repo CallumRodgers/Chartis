@@ -41,7 +41,7 @@ function(compile_shaders TARGET_NAME OUTPUT_DIR)
     set(SPV_OUTPUT_FILES "")
 
     foreach(SHADER_FILE ${SHADER_FILES})
-        set(SRC_PATH "${CMAKE_SOURCE_DIR}/${SHADER_FILE}")
+        set(SRC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${SHADER_FILE}")
 
         file(RELATIVE_PATH REL_TO_ROOT "${CMAKE_SOURCE_DIR}/AMORA/shaders" ${SRC_PATH})
 
@@ -81,13 +81,13 @@ endfunction()
 # =========================================
 
 set(GRAPHICS_SHADERS_SOURCES
-        AMORA/shaders/shader_vert.slang
-        AMORA/shaders/shader_frag.slang
-        AMORA/shaders/background_vert.slang
-        AMORA/shaders/background_frag.slang
-        AMORA/shaders/scene2D/coordinate_grid_2D_vert.slang
-        AMORA/shaders/scene2D/coordinate_grid_2D_cartesian.slang
-        AMORA/shaders/scene2D/coordinate_grid_2D_polar.slang
+        shaders/shader_vert.slang
+        shaders/shader_frag.slang
+        shaders/background_vert.slang
+        shaders/background_frag.slang
+        shaders/scene2D/coordinate_grid_2D_vert.slang
+        shaders/scene2D/coordinate_grid_2D_cartesian.slang
+        shaders/scene2D/coordinate_grid_2D_polar.slang
 )
 set(COMPUTE_SHADERS_SOURCES
 )
@@ -106,7 +106,6 @@ target_sources(AMORA
         PUBLIC
         include/AMORA/AMORA.hpp
         include/AMORA/Engine.hpp
-        include/AMORA/Platform.hpp
         include/AMORA/ImGuiEngineData.hpp
         include/AMORA/config.hpp
         include/AMORA/algebra_types.hpp
@@ -167,23 +166,11 @@ target_sources(AMORA
         # Compute classes implementations
         src/compute/ComputePipeline.hpp
         src/compute/ComputePipeline.cpp
-
-        # =========================================
-        # Dear ImGui Sources
-        # =========================================
-
-        ../libs/imgui/imgui.cpp
-        ../libs/imgui/imgui_widgets.cpp
-        ../libs/imgui/imgui_tables.cpp
-        ../libs/imgui/imgui_draw.cpp
-        ../libs/imgui/imgui_demo.cpp
-
-        ../libs/imgui/backends/imgui_impl_vulkan.cpp
 )
 
 target_include_directories(AMORA
         PUBLIC include
-        PRIVATE src ../libs/imgui ../libs/stb_image
+        PRIVATE src
 )
 
 # This saves us from having to define these macros every time we include a Vulkan header.
@@ -195,4 +182,4 @@ target_compile_definitions(AMORA PRIVATE
 # Precompilation speeds up the build process. It also takes it easier on the IDE parsing.
 target_precompile_headers(AMORA PRIVATE <vulkan/vulkan_raii.hpp>)
 
-target_link_libraries(AMORA PRIVATE Vulkan::Vulkan glm quill::quill)
+target_link_libraries(AMORA PRIVATE Chartis_Libs Chartis_Platform Vulkan::Vulkan glm)

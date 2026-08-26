@@ -7,10 +7,10 @@
 #define ENGINE_HPP
 
 #include <memory>
-#include <AMORA/Scene.hpp>
 
+#include "Scene.hpp"
 #include "ImGuiEngineData.hpp"
-#include "Platform.hpp"
+#include "platypus/Platform.hpp"
 #include "res_id.hpp"
 
 /**
@@ -43,7 +43,7 @@ namespace amora {
     class Engine {
     public:
         struct EngineInitInfo {
-            const NativePlatformInfo& platformInfo;
+            const chartis::platypus::NativePlatformInfo& platformInfo;
             uint32_t surfaceWidth;
             uint32_t surfaceHeight;
         };

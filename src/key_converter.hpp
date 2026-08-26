@@ -7,7 +7,7 @@
 #define CHARTIS_KEY_CONVERTER_HPP
 
 #include <imgui.h>
-#include "platform/UserInput.hpp"
+#include "platypus/UserInput.hpp"
 
 namespace chartis {
     static ImGuiKey keyToImGuiKey(Key key) {

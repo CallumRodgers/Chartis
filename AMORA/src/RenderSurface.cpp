@@ -7,6 +7,8 @@
 
 using namespace amora;
 
+using chartis::platypus::NativePlatformInfo;
+using chartis::platypus::Platform;
 
 //////////////////////////////////
 // BEGIN PLATFORM-SPECIFIC CODE //

@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef CHARTIS_WINDOWS_HPP
-#define CHARTIS_WINDOWS_HPP
+#ifndef CHARTIS_X11_HPP
+#define CHARTIS_X11_HPP
 
-namespace chartis::platform {
-    class Windows {
+namespace chartis::platypus {
+    class X11 {
     };
 }
 
-#endif //CHARTIS_WINDOWS_HPP
+#endif //CHARTIS_X11_HPP

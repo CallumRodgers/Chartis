@@ -8,9 +8,9 @@
 
 #include <cstdint>
 #include <linux/input-event-codes.h>
-#include "UserInput.hpp"
+#include "../include/platypus/UserInput.hpp"
 
-namespace chartis::platform {
+namespace chartis::platypus {
     //////////////////////
     // INPUT CONVERTERS //
     //////////////////////

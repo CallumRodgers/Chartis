@@ -9,7 +9,7 @@
 #include <AMORA/Scene2D.hpp>
 #include <GLFW/glfw3.h>
 
-#include "platform/NativeWindow.hpp"
+#include "platypus/NativeWindow.hpp"
 
 namespace chartis {
     /**
@@ -19,7 +19,7 @@ namespace chartis {
     public:
         typedef std::function<void()> scene_update_callback;
 
-        explicit EventHandler2D(const platform::NativeWindow& window) : mWindow(window) {}
+        explicit EventHandler2D(const platypus::NativeWindow& window) : mWindow(window) {}
 
         void setActiveScene(amora::scene::Scene2D* scene) { mScene = scene; }
 
@@ -40,7 +40,7 @@ namespace chartis {
     private:
         constexpr static double POSITION_UNSET = -1.0;
 
-        const platform::NativeWindow& mWindow;
+        const platypus::NativeWindow& mWindow;
         amora::scene::Scene2D* mScene;
 
         scene_update_callback mCallback;

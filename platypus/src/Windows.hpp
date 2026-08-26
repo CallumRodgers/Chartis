@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 
-#ifndef CHARTIS_APPLE_HPP
-#define CHARTIS_APPLE_HPP
+#ifndef CHARTIS_WINDOWS_HPP
+#define CHARTIS_WINDOWS_HPP
 
-namespace chartis::platform {
-    class Apple {
+namespace chartis::platypus {
+    class Windows {
     };
 }
 
-#endif //CHARTIS_APPLE_HPP
+#endif //CHARTIS_WINDOWS_HPP

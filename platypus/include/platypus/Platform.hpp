@@ -6,7 +6,7 @@
 #ifndef CHARTIS_PLATFORM_HPP
 #define CHARTIS_PLATFORM_HPP
 
-namespace amora {
+namespace chartis::platypus {
     enum class Platform {
         Windows,
         Wayland,

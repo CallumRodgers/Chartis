@@ -7,16 +7,15 @@
 #define CHARTIS_RENDERSURFACE_HPP
 
 #include "VulkanContext.hpp"
-#include "AMORA/Platform.hpp"
+#include "platypus/Platform.hpp"
 
 namespace amora {
-
     /**
      * The RenderSurface class encapsulates the overall concept of a surface that may be drawn on.
      */
     class RenderSurface {
     public:
-        RenderSurface(const VulkanContext& context, const NativePlatformInfo& platformInfo);
+        RenderSurface(const VulkanContext& context, const chartis::platypus::NativePlatformInfo& platformInfo);
 
         void invalidateSize(uint32_t width, uint32_t height) {
             if (width <= 0 || height <= 0) throw std::invalid_argument("Surface dimensions must be positive.");
