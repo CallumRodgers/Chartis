@@ -12,18 +12,6 @@ find_package(Vulkan REQUIRED)
 find_package(slang REQUIRED)
 find_package(glm REQUIRED)
 
-include(FetchContent)
-
-# ===================
-# Quill
-FetchContent_Declare(
-        quill
-        GIT_REPOSITORY https://github.com/odygrd/quill.git
-        GIT_TAG        v12.0.0
-)
-FetchContent_MakeAvailable(quill)
-# ===================
-
 # =========================================
 # Creating function for shader compilation.
 # =========================================
