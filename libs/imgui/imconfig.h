@@ -1,8 +1,3 @@
-//==============================================================================
-// Copyright (c) 2026 Callum L. Rodgers
-// SPDX-License-Identifier: MIT
-//==============================================================================
-
 //-----------------------------------------------------------------------------
 // DEAR IMGUI COMPILE-TIME OPTIONS
 // Runtime options (clipboard callbacks, enabling various features, etc.) can generally be set via the ImGuiIO structure.

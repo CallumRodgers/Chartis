@@ -1,8 +1,3 @@
-//==============================================================================
-// Copyright (c) 2026 Callum L. Rodgers
-// SPDX-License-Identifier: MIT
-//==============================================================================
-
 // [DEAR IMGUI]
 // This is a slightly modified version of stb_truetype.h 1.26.
 // Mostly fixing for compiler and static analyzer warnings.
